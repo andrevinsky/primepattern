@@ -1,0 +1,123 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>New kind of fractals - Fractals in relatively prime integers (coprime integers).</title>
+	<a href="/about.html"><b>About</b></a><br />
+	<script>
+		function droveLines(canvas, x, y){
+			var context=canvas.getContext('2d');
+			context.font="10pt sans-serif";
+			context.beginPath();
+			//context.clearRect(0, 0, canvas.width, canvas.height);
+			context.fillStyle = "rgb(256,256,256)";
+			context.fillRect (0, 0, canvas.width, canvas.height);
+
+			var i=2;
+			var k=1;
+			var xStart=10;
+			var yStart=10;
+			var SizeKofX=5;
+			var SizeKofY=5;
+			var xEnd=SizeKofX*Math.round(x/SizeKofX);
+			var yEnd=SizeKofY*Math.round(y/SizeKofY);
+
+			var xx=xStart+SizeKofX;
+			var yy=yStart+SizeKofY;
+
+			context.moveTo(xStart,yStart);
+			context.lineTo(xx,yy);
+			//context.moveTo(xx,yy);
+
+			if(((xStart)<xEnd)&&((yStart)<yEnd)){
+				do{
+					if((xx==xEnd)||(xx==xStart)){
+						SizeKofX=SizeKofX*-1;
+						i++;
+					}
+					if((yy==yEnd)||(yy==yStart)){
+						SizeKofY=SizeKofY*-1;
+						i++;
+					}
+					xx=xx+SizeKofX;
+					yy=yy+SizeKofY;
+
+					k=k*-1;
+					if(k==1){
+						context.lineTo(xx,yy);
+					}else{
+						context.moveTo(xx,yy);
+					}
+
+					//if (i>10000){break}
+				}while(!((xx==xStart&&yy==yStart)||(xx==xEnd&&yy==yStart)||(xx==xEnd&&yy==yEnd)||(xx==xStart&&yy==yEnd)));
+
+			}
+			/*context.lineTo(xEnd,yEnd);*/
+			context.stroke();
+
+
+			context.beginPath();
+			//context.strokeText("("+((xEnd-xStart)/Math.abs(SizeKofX))+", "+((yEnd-yStart)/Math.abs(SizeKofY))+"), "+i, xEnd+20,yEnd+20);
+			context.strokeText("("+((xEnd-xStart)/Math.abs(SizeKofX))+", "+((yEnd-yStart)/Math.abs(SizeKofY))+"), "+(xEnd-xStart)/(yEnd-yStart), xEnd+20,yEnd+20);
+
+			context.moveTo(xStart,yStart);
+			context.lineTo(xStart,yEnd);
+			context.lineTo(xEnd,yEnd);
+			context.lineTo(xEnd,yStart);
+			context.lineTo(xStart,yStart);
+
+			context.stroke();
+		}
+
+		function getMousePos(canvas, evt){
+			var obj=canvas;
+			var top=0;
+			var left=0;
+			while (obj && obj.tagName != 'BODY') {
+				top+=obj.offsetTop;
+				left+=obj.offsetLeft;
+				obj=obj.offsetParent;
+			}
+
+			var mouseX=evt.clientX-left+window.pageXOffset;
+			var mouseY=evt.clientY-top+window.pageYOffset;
+			return {
+				x: mouseX,
+				y: mouseY
+			};
+		}
+
+		window.onload=function(){
+			var canvas=document.getElementById('myCanvas');
+			var context=canvas.getContext('2d');
+			canvas.width=1400; // Ширина холста
+			canvas.height=1000; // высота холста
+			canvas.addEventListener('mousemove', function(evt){
+				var mousePos=getMousePos(canvas, evt);
+				droveLines(canvas, mousePos.x, mousePos.y);
+			}, false);
+		};
+	</script>
+</head>
+<body onmousedown="return false;" bgcolor="#efefef">
+<canvas id="myCanvas">
+</canvas>
+
+<div id="footer">
+	<br><!--LiveInternet counter--><script type="text/javascript"><!--
+document.write("<a href='http://www.liveinternet.ru/click' "+
+		"target=_blank><img src='//counter.yadro.ru/hit?t26.1;r"+
+		escape(document.referrer)+((typeof(screen)=="undefined")?"":
+		";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+				screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+		";"+Math.random()+
+		"' alt='' title='LiveInternet: показано число посетителей за"+
+		" сегодня' "+
+		"border='0' width='0' height='0'><\/a>")
+//--></script><!--/LiveInternet-->
+</div>
+</body>
+
+</html>
+
