@@ -7,17 +7,26 @@
  */
 
 window.onload = function () {
-	initCanvas(
-			document.getElementById('myCanvas'),
-			document.getElementById('number_or_colors'),
-			document.getElementById('canvas_width'),
-			document.getElementById('canvas_height'),
-			document.getElementById('draw_form'),
-			document.getElementById('ratio')
-	);
+	initCanvas({
+		canvas: document.getElementById('myCanvas'),
+		colorSelector: document.getElementById('number_or_colors'),
+		inputW: document.getElementById('canvas_width'),
+		inputH: document.getElementById('canvas_height'),
+		goBtn: document.getElementById('draw_form'),
+		ratioCtl: document.getElementById('ratio'),
+		alternateColors: document.getElementById('alternate_colors')
+	});
 };
 
-function initCanvas(canvas, colorSelector, inputW, inputH, goBtn, ratioCtl) {
+function initCanvas(o) {
+
+	var canvas = o.canvas,
+			colorSelector = o.colorSelector,
+			inputW = o.inputW,
+			inputH = o.inputH,
+			goBtn = o.goBtn,
+			ratioCtl = o.ratioCtl,
+			alternateColors = o.alternateColors;
 
 	var viewRatio = 10, viewOffset= {
 		x: 10, y: 10
@@ -27,31 +36,40 @@ function initCanvas(canvas, colorSelector, inputW, inputH, goBtn, ratioCtl) {
 	canvas.height = 1000; // высота холста
 
 
-	var lastKnownCoords = { x: 1, y: 1}, colors = 2;
+	var lastKnownCoords = { x: 1, y: 1}, colors = 2, alternate = false;
+
 	canvas.addEventListener('mousedown', function (evt) {
-		var mousePos = getMousePos(canvas, viewRatio, viewOffset, evt),
-				lastKnownCoords = mousePos;
-		drawPatterns(canvas, mousePos, colors, viewRatio, viewOffset);
+		var mousePos = getMousePos(canvas, viewRatio, viewOffset, evt);
+
+		lastKnownCoords.x = mousePos.x;
+		lastKnownCoords.y = mousePos.y;
+
+		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
 	}, false);
 
 	colorSelector.addEventListener('change', function(){
 		colors = colorSelector.value >>> 0;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset);
+		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
 	}, false);
 
 	goBtn.addEventListener('submit', function(evt){
 		evt.preventDefault();
-
 		var width = inputW.value >>> 0;
 		var height = inputH.value >>> 0;
-		lastKnownCoords = { x: width, y: height };
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset);
+		lastKnownCoords.x = width;
+		lastKnownCoords.y = height;
+		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
 		return false;
 	});
 
 	ratioCtl.addEventListener('change', function(){
 		viewRatio = ratioCtl.value >>> 0;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset);
+		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
+	}, false);
+
+	alternateColors.addEventListener('change', function(){
+		alternate = alternateColors.checked === true;
+		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
 	}, false);
 
 }
@@ -112,7 +130,7 @@ function drawLine(context, style, fromX, fromY, diffX, diffY, ratio, viewOffset)
 	context.stroke();
 }
 
-function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset) {
+function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset, alternate) {
 
 	var context = prepareBoard(canvas, coords, ratio, viewOffset);
 
@@ -131,9 +149,14 @@ function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset) {
 		'#9d3ed5'
 	];
 
-	var color, coord, ord, even, nd, diff;
+	var color, coord, ord, even, nd, diff, colorKey;
 	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
-		color = colors[(i % (colorsCount || 2))];
+
+		colorKey = (i % (colorsCount || 2));
+
+		color = ((alternate)
+				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
+				: colors[colorKey]);
 
 		coord = {
 			x: i % xMax,
