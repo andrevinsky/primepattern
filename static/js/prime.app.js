@@ -111,6 +111,7 @@ function gcd(a, b) {
 	if ((_an =(_a % _b)) == 0) return _b;
 	return gcd(_b, _an);
 }
+
 function lcm(a, b) {
 	return a * b / gcd(a , b);
 }
@@ -129,12 +130,71 @@ function drawLine(context, style, fromX, fromY, diffX, diffY, ratio, viewOffset)
 	context.lineTo(x, y - 1.5);
 	context.stroke();
 }
+function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
+	context.beginPath();
+	context.strokeStyle = style;
+	var diffX = direction % 2, diffY = Math.floor(direction / 2)
+	var x = viewOffset.x + (fromX + diffX) * ratio,
+			y = viewOffset.y + (fromY + diffY) * ratio;
+
+	context.moveTo(x, y + 1.5);
+	context.lineTo(
+			viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
+			viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
+
+	context.lineTo(x, y - 1.5);
+	context.stroke();
+}
+
+function prepareModel(xMax, yMax) {
+	var result = [];
+	var moduloCoords, wholePartCoords, isEvenPair, reflectedCoords, directionPair;
+	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
+		moduloCoords = {
+			x: i % xMax,
+			y: i % yMax
+		};
+
+		wholePartCoords = {
+			x: Math.floor(i / xMax),
+			y: Math.floor(i / yMax)
+		};
+
+		isEvenPair = {
+			x: (wholePartCoords.x % 2) == 0,
+			y: (wholePartCoords.y % 2) == 0
+		};
+
+		reflectedCoords = {
+			x: isEvenPair.x ? moduloCoords.x : (xMax -1) - moduloCoords.x,
+			y: isEvenPair.y ? moduloCoords.y : (yMax - 1) - moduloCoords.y
+		};
+
+		directionPair = {
+			x: (isEvenPair.x ? 1 : -1),
+			y: (isEvenPair.y ? 1 : -1)
+		};
+		var key = reflectedCoords.x + yMax * reflectedCoords.y;
+		if (result[key]) {
+			debugger;
+		}
+		result[key] = {
+			slant: directionPair.x * directionPair.y == 1 ? '\\' : '/',
+			direction: (isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2),
+			idx: i
+		};
+	}
+	return result;
+}
 
 function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset, alternate) {
 
 	var context = prepareBoard(canvas, coords, ratio, viewOffset);
 
+
+
 	var xMax = coords.x, yMax = coords.y;
+	var model = prepareModel(xMax, yMax);
 
 	var colors = [
 		'#ffcccc',
@@ -149,42 +209,56 @@ function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset, alternate)
 		'#9d3ed5'
 	];
 
-	var color, coord, ord, even, nd, diff, colorKey;
-	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
-
-		colorKey = (i % (colorsCount || 2));
-
+	var item;
+	var color, colorKey;
+	debugger;
+	for (var i = 0, max = model.length; i < max; i++) {
+		item = model[i];
+		if (!item) continue;
+		var x = i % yMax, y = Math.floor(i / yMax);
+		colorKey = (item.idx % (colorsCount || 2));
 		color = ((alternate)
 				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
 				: colors[colorKey]);
-
-		coord = {
-			x: i % xMax,
-			y: i % yMax
-		};
-
-		ord = {
-			x: Math.floor(i / xMax),
-			y: Math.floor(i / yMax)
-		};
-
-		even = {
-			x: (ord.x % 2) == 0,
-			y: (ord.y % 2) == 0
-		};
-
-		nd = {
-			x: even.x ? coord.x : (xMax -1) - coord.x,
-			y: even.y ? coord.y : (yMax - 1) - coord.y
-		};
-
-		diff = {
-			x: (even.x ? 1 : -1),
-			y: (even.y ? 1 : -1)
-		};
-
-		drawLine(context, color, nd.x, nd.y, diff.x, diff.y, ratio, viewOffset);
+		drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
 	}
+
+//	var color, coord, ord, even, nd, diff, colorKey;
+//	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
+//
+//		colorKey = (i % (colorsCount || 2));
+//
+//		color = ((alternate)
+//				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
+//				: colors[colorKey]);
+//
+//		coord = {
+//			x: i % xMax,
+//			y: i % yMax
+//		};
+//
+//		ord = {
+//			x: Math.floor(i / xMax),
+//			y: Math.floor(i / yMax)
+//		};
+//
+//		even = {
+//			x: (ord.x % 2) == 0,
+//			y: (ord.y % 2) == 0
+//		};
+//
+//		nd = {
+//			x: even.x ? coord.x : (xMax -1) - coord.x,
+//			y: even.y ? coord.y : (yMax - 1) - coord.y
+//		};
+//
+//		diff = {
+//			x: (even.x ? 1 : -1),
+//			y: (even.y ? 1 : -1)
+//		};
+//
+//		drawLine(context, color, nd.x, nd.y, diff.x, diff.y, ratio, viewOffset);
+//	}
 }
 
 function getMousePos(canvas, ratio, offset, evt) {
