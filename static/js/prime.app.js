@@ -166,7 +166,7 @@ function prepareModel(xMax, yMax) {
 		};
 
 		reflectedCoords = {
-			x: isEvenPair.x ? moduloCoords.x : (xMax -1) - moduloCoords.x,
+			x: isEvenPair.x ? moduloCoords.x : (xMax - 1) - moduloCoords.x,
 			y: isEvenPair.y ? moduloCoords.y : (yMax - 1) - moduloCoords.y
 		};
 
@@ -174,7 +174,7 @@ function prepareModel(xMax, yMax) {
 			x: (isEvenPair.x ? 1 : -1),
 			y: (isEvenPair.y ? 1 : -1)
 		};
-		var key = reflectedCoords.x + yMax * reflectedCoords.y;
+		var key = reflectedCoords.x + xMax * reflectedCoords.y;
 		if (result[key]) {
 			debugger;
 		}
@@ -211,11 +211,10 @@ function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset, alternate)
 
 	var item;
 	var color, colorKey;
-	debugger;
 	for (var i = 0, max = model.length; i < max; i++) {
 		item = model[i];
 		if (!item) continue;
-		var x = i % yMax, y = Math.floor(i / yMax);
+		var x = i % xMax, y = Math.floor(i / xMax);
 		colorKey = (item.idx % (colorsCount || 2));
 		color = ((alternate)
 				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]

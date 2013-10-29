@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5813e7e0-e800-482d-a512-06dfff890e02" name="Default" comment="" />
+    <list default="true" id="5813e7e0-e800-482d-a512-06dfff890e02" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/prime.app.js" afterPath="$PROJECT_DIR$/static/js/prime.app.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="PrimePattern.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -35,8 +38,10 @@
       <file leaf-file-name="prime.app.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="174" column="0" selection-start="4562" selection-end="4562" vertical-scroll-proportion="0.96166855" vertical-offset="2105" max-vertical-offset="3655">
-              <folding />
+            <state line="212" column="22" selection-start="5672" selection-end="5672" vertical-scroll-proportion="0.3322034" vertical-offset="2817" max-vertical-offset="4403">
+              <folding>
+                <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -50,6 +55,11 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
   </component>
   <component name="GitLogSettings">
     <option name="myStructureFilterPaths" />
@@ -142,13 +152,13 @@
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="recentsLimit" value="5" />
     <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
+    <property name="recentsLimit" value="5" />
     <property name="restartRequiresConfirmation" value="true" />
     <property name="FullScreen" value="false" />
     <property name="DefaultHtmlFileTemplate" value="Html5" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager" selected="PHP Built-in Web Server.Unnamed">
     <configuration default="true" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -218,29 +228,33 @@
       <created>1382049209981</created>
       <updated>1382049209981</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Enabling fill">
+      <created>1383077393055</created>
+      <updated>1383077393055</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="1272" y="-8" width="1696" height="1066" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32893288" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31823745" sideWeight="0.6710671" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31804466" sideWeight="0.6710671" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29042906" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29088914" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32893288" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Regex Tester" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -261,7 +275,8 @@
     <MESSAGE value="Colored paths." />
     <MESSAGE value="Added dimension controls and ratio." />
     <MESSAGE value="Added color alteration checkbox" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added color alteration checkbox" />
+    <MESSAGE value="Enabling fill" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enabling fill" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -277,7 +292,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="4" selection-start="460" selection-end="460" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -291,7 +308,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="4" selection-start="460" selection-end="460" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -305,7 +324,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="4" selection-start="460" selection-end="460" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -319,7 +340,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="21" column="20" selection-start="563" selection-end="563" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -333,7 +356,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="19" selection-start="353" selection-end="353" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -347,7 +372,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="73" column="28" selection-start="2046" selection-end="2046" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -361,7 +388,9 @@
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="0" selection-start="1643" selection-end="1643" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -374,8 +403,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/static/js/prime.app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="174" column="0" selection-start="4562" selection-end="4562" vertical-scroll-proportion="0.96166855" vertical-offset="2105" max-vertical-offset="3655">
-          <folding />
+        <state line="212" column="22" selection-start="5672" selection-end="5672" vertical-scroll-proportion="0.3322034" vertical-offset="2817" max-vertical-offset="4403">
+          <folding>
+            <element signature="n#!!block;n#prepareBoard#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
