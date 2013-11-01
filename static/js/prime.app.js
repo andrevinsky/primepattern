@@ -6,76 +6,154 @@
  * To change this template use File | Settings | File Templates.
  */
 
-window.onload = function () {
+$(function () {
 	initCanvas({
-		canvas: document.getElementById('myCanvas'),
-		colorSelector: document.getElementById('number_or_colors'),
-		inputW: document.getElementById('canvas_width'),
-		inputH: document.getElementById('canvas_height'),
-		goBtn: document.getElementById('draw_form'),
-		ratioCtl: document.getElementById('ratio'),
-		alternateColors: document.getElementById('alternate_colors')
+		canvas: $('#myCanvas'),
+		colorSelector: $('#number_or_colors'),
+		inputW: $('#canvas_width'),
+		inputH: $('#canvas_height'),
+		dimensions: $('#draw_form'),
+		ratioCtl: $('#ratio'),
+		fill: $('#fill_colors'),
+		outline: $('#outline_fill'),
+		alternateColors: $('#alternate_colors'),
+		swapper: $('#swap_sides'),
+		reduce: $('#reduce_sides'),
+		increase: $('#increase_sides')
+	}, {
+		canvas: { width: 1400, height: 1000 },
+		colors: 2,
+		patternSize: { width: 15, height: 8},
+		ratio: 10,
+		fill: false,
+		outline: false,
+		alternate: false,
+		viewOffset: {
+			x: 10,
+			y: 10
+		},
+		colorBank: [
+			'#ffcccc',
+			'#123eab',
+			'#ffab00',
+			'#00cc00',
+			'#6f0aaa',
+			'#ff4040',
+			'#466fd5',
+			'#ffc040',
+			'#39e639',
+			'#9d3ed5'
+		]
 	});
-};
+});
 
-function initCanvas(o) {
+function initCanvas(view, model) {
 
-	var canvas = o.canvas,
-			colorSelector = o.colorSelector,
-			inputW = o.inputW,
-			inputH = o.inputH,
-			goBtn = o.goBtn,
-			ratioCtl = o.ratioCtl,
-			alternateColors = o.alternateColors;
+	view.canvas[0].width = model.canvas.width;
+	view.canvas[0].height = model.canvas.height;
+	view.canvas.on('mousedown', function (evt) {
+		var mousePos = getMousePos(view.canvas[0], model, evt);
 
-	var viewRatio = 10, viewOffset= {
-		x: 10, y: 10
-	};
+		model.patternSize.width = mousePos.x;
+		model.patternSize.height = mousePos.y;
 
-	canvas.width = 1400; // Ширина холста
-	canvas.height = 1000; // высота холста
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+
+		drawPatterns(view.canvas, model);
+	});
+
+	view.colorSelector.val(model.colors).on('change', function(){
+		model.colors = $(this).val() >>> 0;
+		drawPatterns(view.canvas, model);
+	});
+
+	view.ratioCtl.val(model.ratio).on('change', function(){
+		model.ratio = $(this).val() >>> 0;
+		drawPatterns(view.canvas, model);
+	});
+
+	view.alternateColors.prop('checked', model.alternate).on('change', function(){
+		model.alternate = $(this).is(':checked');
+		drawPatterns(view.canvas, model);
+	});
+
+	view.fill.prop('checked', model.fill).on('change', function(){
+		model.fill = $(this).is(':checked');
+		drawPatterns(view.canvas, model);
+	});
+
+	view.outline.prop('checked', model.outline).on('change', function(){
+		model.outline = $(this).is(':checked');
+		drawPatterns(view.canvas, model);
+	});
 
 
-	var lastKnownCoords = { x: 1, y: 1}, colors = 2, alternate = false;
-
-	canvas.addEventListener('mousedown', function (evt) {
-		var mousePos = getMousePos(canvas, viewRatio, viewOffset, evt);
-
-		lastKnownCoords.x = mousePos.x;
-		lastKnownCoords.y = mousePos.y;
-
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
-	}, false);
-
-	colorSelector.addEventListener('change', function(){
-		colors = colorSelector.value >>> 0;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
-	}, false);
-
-	goBtn.addEventListener('submit', function(evt){
+	view.inputW.val(model.patternSize.width);
+	view.inputH.val(model.patternSize.height);
+	view.dimensions.on('submit', function(evt){
 		evt.preventDefault();
-		var width = inputW.value >>> 0;
-		var height = inputH.value >>> 0;
-		lastKnownCoords.x = width;
-		lastKnownCoords.y = height;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
+		model.patternSize.width = view.inputW.val() >>> 0;
+		model.patternSize.height = view.inputH.val() >>> 0;
+		drawPatterns(view.canvas, model);
 		return false;
 	});
 
-	ratioCtl.addEventListener('change', function(){
-		viewRatio = ratioCtl.value >>> 0;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
-	}, false);
+	view.swapper.on('click', function(){
+		var tmp = model.patternSize.width;
+		model.patternSize.width = model.patternSize.height;
+		model.patternSize.height = tmp;
 
-	alternateColors.addEventListener('change', function(){
-		alternate = alternateColors.checked === true;
-		drawPatterns(canvas, lastKnownCoords, colors, viewRatio, viewOffset, alternate);
-	}, false);
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
 
+		drawPatterns(view.canvas, model);
+	});
+
+	view.reduce.on('click', function(){
+		var min = Math.min(model.patternSize.width, model.patternSize.height),
+				max = Math.max(model.patternSize.width, model.patternSize.height),
+				diff = max - min;
+		if (min == max) {
+			return;
+		}
+		if (diff <= 1) {
+			return;
+		}
+		model.patternSize.width = Math.max(min, diff);
+		model.patternSize.height = Math.min(min, diff);
+
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+
+		drawPatterns(view.canvas, model);
+	});
+	view.increase.on('click', function(){
+		var min = Math.min(model.patternSize.width, model.patternSize.height),
+				max = Math.max(model.patternSize.width, model.patternSize.height),
+				next = max + min;
+
+		model.patternSize.width = next;
+		model.patternSize.height = max;
+
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+
+		drawPatterns(view.canvas, model);
+	});
+
+	drawPatterns(view.canvas, model);
 }
 
-function prepareBoard(canvas, coords, ratio, viewOffset) {
-	var context = canvas.getContext('2d');
+function prepareBoard(canvas, model) {
+	var context = canvas.getContext('2d'),
+			coords = {
+				x: model.patternSize.width,
+				y: model.patternSize.height
+			},
+			ratio = model.ratio,
+			viewOffset = model.viewOffset;
+
 	context.font = "10pt sans-serif";
 	context.beginPath();
 	//context.clearRect(0, 0, canvas.width, canvas.height);
@@ -92,6 +170,7 @@ function prepareBoard(canvas, coords, ratio, viewOffset) {
 
 	context.beginPath();
 	context.strokeStyle = '#444';
+	context.textAlign="right";
 	context.strokeText("(" + (coords.x) + ", " + (coords.y) + "), LCM: " + _lcm + ", GCD: " + _gcd, xEnd + 20, yEnd + 20);
 
 	context.moveTo(xStart, yStart);
@@ -114,36 +193,6 @@ function gcd(a, b) {
 
 function lcm(a, b) {
 	return a * b / gcd(a , b);
-}
-
-function drawLine(context, style, fromX, fromY, diffX, diffY, ratio, viewOffset) {
-	context.beginPath();
-	context.strokeStyle = style;
-	var x = viewOffset.x + (fromX + ((diffX == 1)? 0 : 1)) * ratio,
-			y = viewOffset.y + (fromY + ((diffY == 1)? 0 : 1)) * ratio;
-
-	context.moveTo(x, y + 1.5);
-	context.lineTo(
-			viewOffset.x + (fromX + ((diffX == 1 ) ? 0 : 1) + diffX) * ratio,
-			viewOffset.y + (fromY + ((diffY == 1 ) ? 0 : 1) + diffY) * ratio);
-
-	context.lineTo(x, y - 1.5);
-	context.stroke();
-}
-function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
-	context.beginPath();
-	context.strokeStyle = style;
-	var diffX = direction % 2, diffY = Math.floor(direction / 2)
-	var x = viewOffset.x + (fromX + diffX) * ratio,
-			y = viewOffset.y + (fromY + diffY) * ratio;
-
-	context.moveTo(x, y + 1.5);
-	context.lineTo(
-			viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
-			viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
-
-	context.lineTo(x, y - 1.5);
-	context.stroke();
 }
 
 function prepareModel(xMax, yMax) {
@@ -187,80 +236,131 @@ function prepareModel(xMax, yMax) {
 	return result;
 }
 
-function drawPatterns(canvas, coords, colorsCount, ratio, viewOffset, alternate) {
+function drawPatterns($canvas, model) {
 
-	var context = prepareBoard(canvas, coords, ratio, viewOffset);
+	var canvas = $canvas[0],
+			context = prepareBoard(canvas, model),
+			coords = model.patternSize,
+			colorsCount = model.colors,
+			ratio = model.ratio,
+			viewOffset = model.viewOffset,
+			alternate = model.alternate,
+			doFill = model.fill,
+			outlineOnly = model.outline,
+			colors = model.colorBank;
 
+	var xMax = coords.width, yMax = coords.height;
 
+	var patternModel = prepareModel(xMax, yMax);
 
-	var xMax = coords.x, yMax = coords.y;
-	var model = prepareModel(xMax, yMax);
+	if (doFill) {
+		var cBank = [colors[0],colors[1]];
+		var currentRowColor = 0, currentColor = 0;
+		for (var y = 0; y < yMax; y++) {
+			currentColor = currentRowColor;
+			for (var x = 0; x < xMax; x++) {
+				var key = x + xMax * y, token = patternModel[key];
+				if (outlineOnly && !token) {
+					drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
+				} else {
+					if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
+						if ((x == 0) && (token.slant == '\\')) {
+							currentRowColor = currentColor = 1 - currentRowColor;
+						}
+						drawHalfBox(context, cBank[currentColor], cBank[1 - currentColor], x, y, token, ratio, viewOffset);
+						currentColor = 1 - currentColor;
+						if ((x == 0) && (token.slant == '/')) {
+							currentRowColor = 1 - currentRowColor;
+						}
+					} else {
+						drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
+					}
+				}
+			}
+		}
 
-	var colors = [
-		'#ffcccc',
-		'#123eab',
-		'#ffab00',
-		'#00cc00',
-		'#6f0aaa',
-		'#ff4040',
-		'#466fd5',
-		'#ffc040',
-		'#39e639',
-		'#9d3ed5'
-	];
-
-	var item;
-	var color, colorKey;
-	for (var i = 0, max = model.length; i < max; i++) {
-		item = model[i];
-		if (!item) continue;
-		var x = i % xMax, y = Math.floor(i / xMax);
-		colorKey = (item.idx % (colorsCount || 2));
-		color = ((alternate)
-				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
-				: colors[colorKey]);
-		drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
+	} else {
+		var item, color, colorKey;
+		for (var i = 0, max = patternModel.length; i < max; i++) {
+			item = patternModel[i];
+			if (!item) continue;
+			var x = i % xMax, y = Math.floor(i / xMax);
+			colorKey = (item.idx % (colorsCount || 2));
+			color = ((alternate)
+					? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
+					: colors[colorKey]);
+			drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
+		}
 	}
-
-//	var color, coord, ord, even, nd, diff, colorKey;
-//	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
-//
-//		colorKey = (i % (colorsCount || 2));
-//
-//		color = ((alternate)
-//				? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
-//				: colors[colorKey]);
-//
-//		coord = {
-//			x: i % xMax,
-//			y: i % yMax
-//		};
-//
-//		ord = {
-//			x: Math.floor(i / xMax),
-//			y: Math.floor(i / yMax)
-//		};
-//
-//		even = {
-//			x: (ord.x % 2) == 0,
-//			y: (ord.y % 2) == 0
-//		};
-//
-//		nd = {
-//			x: even.x ? coord.x : (xMax -1) - coord.x,
-//			y: even.y ? coord.y : (yMax - 1) - coord.y
-//		};
-//
-//		diff = {
-//			x: (even.x ? 1 : -1),
-//			y: (even.y ? 1 : -1)
-//		};
-//
-//		drawLine(context, color, nd.x, nd.y, diff.x, diff.y, ratio, viewOffset);
-//	}
 }
 
-function getMousePos(canvas, ratio, offset, evt) {
+function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
+	context.beginPath();
+	context.strokeStyle = style;
+	var diffX = direction % 2, diffY = Math.floor(direction / 2)
+	var x = viewOffset.x + (fromX + diffX) * ratio,
+			y = viewOffset.y + (fromY + diffY) * ratio;
+
+	context.moveTo(x, y + 1.5);
+	context.lineTo(
+			viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
+			viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
+
+	context.lineTo(x, y - 1.5);
+	context.stroke();
+}
+
+function drawSolidBox(context, style, x, y, ratio, viewOffset) {
+	context.beginPath();
+	context.fillStyle = style;
+	context.fillRect(viewOffset.x + x * ratio, viewOffset.y + y * ratio, ratio, ratio);
+	//context.stroke();
+}
+
+function drawHalfBox(context, currentColor, supplementaryColor, x, y, token, ratio, viewOffset) {
+	if (token.slant == '/') {
+		context.beginPath();
+		context.fillStyle = currentColor;
+		context.strokeStyle = 'transparent'; //currentColor;
+		context.moveTo(viewOffset.x + x * ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio + ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio , viewOffset.y + y * ratio + ratio);
+		context.closePath();
+		context.fill();
+
+		context.beginPath();
+		context.fillStyle = supplementaryColor;
+		context.strokeStyle = 'transparent'; //currentColor;
+		context.moveTo(viewOffset.x + x * ratio  + ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio + ratio, viewOffset.y + y * ratio + ratio);
+		context.lineTo(viewOffset.x + x * ratio, viewOffset.y + y * ratio  + ratio);
+		context.closePath();
+		context.fill();
+	} else {
+		context.beginPath();
+		context.fillStyle = currentColor;
+		context.strokeStyle = 'transparent'; //currentColor;
+		context.moveTo(viewOffset.x + x * ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio , viewOffset.y + y * ratio + ratio);
+		context.lineTo(viewOffset.x + x * ratio+ ratio, viewOffset.y + y * ratio  + ratio);
+		context.closePath();
+		context.fill();
+
+		context.beginPath();
+		context.fillStyle = supplementaryColor;
+		context.strokeStyle = 'transparent'; //currentColor;
+		context.moveTo(viewOffset.x + x * ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio + ratio, viewOffset.y + y * ratio);
+		context.lineTo(viewOffset.x + x * ratio + ratio, viewOffset.y + y * ratio  + ratio);
+		context.closePath();
+		context.fill();
+
+	}
+}
+
+function getMousePos(canvas, model, evt) {
+	var ratio = model.ratio, offset = model.viewOffset;
+
 	var obj = canvas, top = 0, left = 0;
 	while (obj && obj.tagName != 'BODY') {
 		top += obj.offsetTop;

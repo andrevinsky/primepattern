@@ -2,11 +2,16 @@
 <html>
 <head>
 	<title>New kind of fractals - Fractals in relatively prime integers (coprime integers).</title>
+	<style>
+		input[type=text] {
+			width: 60px;
+		}
+	</style>
 
 </head>
 <body bgcolor="#efefef">
 <a href="/about.html"><b>About</b></a>
-<select name="colors" id="number_or_colors">
+<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>&nbsp;<select name="colors" id="number_or_colors" title="Number of colors">
 	<option value="1">1</option>
 	<option value="2">2</option>
 	<option value="3">3</option>
@@ -17,7 +22,7 @@
 	<option value="8">8</option>
 	<option value="9">9</option>
 	<option value="10">10</option>
-</select>&nbsp;<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" placeholder="width" />&nbsp;<input type="text" id="canvas_height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>&nbsp;<select name="ratio" id="ratio">
+</select>&nbsp;<select name="ratio" id="ratio" title="Cell size">
 	<option value="4">4</option>
 	<option value="5">5</option>
 	<option value="6">6</option>
@@ -27,10 +32,12 @@
 	<option value="15">15</option>
 	<option value="20">20</option>
 </select>
-&nbsp;<label for="alternate_colors"><input type="checkbox" id="alternate_colors" value="1" /> Alternate colors</label><br />
+&nbsp;<label for="fill_colors"><input type="checkbox" id="fill_colors" value="0" /> Fill</label>&nbsp;<label for="outline_fill"><input type="checkbox" id="outline_fill" value="1" /> Outline Only</label>&nbsp;<label for="alternate_colors"><input type="checkbox" id="alternate_colors" value="1" /> Alternate</label>&nbsp;<button id="swap_sides">Swap</button>&nbsp;<button id="reduce_sides">-</button>&nbsp;<button id="increase_sides">+</button><br />
 
 <canvas id="myCanvas"></canvas>
 
+<script src="static/libs/jquery/jquery-1.10.2.js"></script>
+<script src="static/libs/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="/static/js/prime.app.js"></script>
 </body>
 
