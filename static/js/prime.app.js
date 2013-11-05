@@ -69,7 +69,7 @@ function initCanvas(view, model) {
 	});
 
 	view.ratioCtl.val(model.ratio).on('change', function(){
-		model.ratio = $(this).val() >>> 0;
+		model.ratio = parseFloat($(this).val());
 		drawPatterns(view.canvas, model);
 	});
 
@@ -168,10 +168,26 @@ function prepareBoard(canvas, model) {
 
 	var _gcd = gcd(coords.x, coords.y),_lcm = coords.x * coords.y / _gcd;
 
+	var info = "(" + (coords.x) + ", " + (coords.y) + "), LCM: " + _lcm + ", GCD: " + _gcd;
+	if (ratio * model.patternSize.width > 300) {
+		var max, min, seq = [
+			max = Math.max(model.patternSize.width, model.patternSize.height),
+			min = Math.min(model.patternSize.width, model.patternSize.height),
+		], diff = max - min;
+
+		while(diff > 1) {
+			seq.push(diff);
+			max = Math.max(min, diff);
+			min = Math.min(min, diff);
+			diff = max - min;
+		}
+		info += ', Seq: [' + seq.join(', ') + ']';
+	}
+
 	context.beginPath();
 	context.strokeStyle = '#444';
 	context.textAlign="right";
-	context.strokeText("(" + (coords.x) + ", " + (coords.y) + "), LCM: " + _lcm + ", GCD: " + _gcd, xEnd + 20, yEnd + 20);
+	context.strokeText(info, xEnd + 20, yEnd + 20);
 
 	context.moveTo(xStart, yStart);
 	context.lineTo(xStart, yEnd);
@@ -196,44 +212,76 @@ function lcm(a, b) {
 }
 
 function prepareModel(xMax, yMax) {
-	var result = [];
-	var moduloCoords, wholePartCoords, isEvenPair, reflectedCoords, directionPair;
-	for (var i = 0, max = lcm(xMax, yMax); i < max; i++) {
-		moduloCoords = {
-			x: i % xMax,
-			y: i % yMax
-		};
+	var def = new $.Deferred(), state = {
+		result: [],
+		current: 0,
+		max: lcm(xMax, yMax),
+		inc: function(){
+			this.current++;
+		},
+		condition: function(){
+			return this.current < this.max;
+		},
+		getResult: function(){
+			return this.result;
+		},
+		body: function(){
+			var i = this.current;
+			var moduloCoords, wholePartCoords, isEvenPair, reflectedCoords, directionPair;
+			var result = this.result;
+			moduloCoords = {
+				x: i % xMax,
+				y: i % yMax
+			};
 
-		wholePartCoords = {
-			x: Math.floor(i / xMax),
-			y: Math.floor(i / yMax)
-		};
+			wholePartCoords = {
+				x: Math.floor(i / xMax),
+				y: Math.floor(i / yMax)
+			};
 
-		isEvenPair = {
-			x: (wholePartCoords.x % 2) == 0,
-			y: (wholePartCoords.y % 2) == 0
-		};
+			isEvenPair = {
+				x: (wholePartCoords.x % 2) == 0,
+				y: (wholePartCoords.y % 2) == 0
+			};
 
-		reflectedCoords = {
-			x: isEvenPair.x ? moduloCoords.x : (xMax - 1) - moduloCoords.x,
-			y: isEvenPair.y ? moduloCoords.y : (yMax - 1) - moduloCoords.y
-		};
+			reflectedCoords = {
+				x: isEvenPair.x ? moduloCoords.x : (xMax - 1) - moduloCoords.x,
+				y: isEvenPair.y ? moduloCoords.y : (yMax - 1) - moduloCoords.y
+			};
 
-		directionPair = {
-			x: (isEvenPair.x ? 1 : -1),
-			y: (isEvenPair.y ? 1 : -1)
-		};
-		var key = reflectedCoords.x + xMax * reflectedCoords.y;
-		if (result[key]) {
-			debugger;
+			directionPair = {
+				x: (isEvenPair.x ? 1 : -1),
+				y: (isEvenPair.y ? 1 : -1)
+			};
+			var key = reflectedCoords.x + xMax * reflectedCoords.y;
+			if (result[key]) {
+				debugger;
+			}
+			result[key] = {
+				slant: directionPair.x * directionPair.y == 1 ? '\\' : '/',
+				direction: (isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2),
+				idx: i
+			};
 		}
-		result[key] = {
-			slant: directionPair.x * directionPair.y == 1 ? '\\' : '/',
-			direction: (isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2),
-			idx: i
-		};
+	};
+	performAsync(def, state);
+
+	return def.promise();
+}
+
+function performAsync(def, state){
+	var iters = 100;
+	while(iters--) {
+		var cond;
+		for(; cond = state.condition(); state.inc()) {
+			state.body();
+		}
+		if (!cond) {
+			def.resolve(state.getResult());
+			return;
+		}
 	}
-	return result;
+	window.setTimeout(function(){ performAsync(def, state); }, 10);
 }
 
 function drawPatterns($canvas, model) {
@@ -251,47 +299,49 @@ function drawPatterns($canvas, model) {
 
 	var xMax = coords.width, yMax = coords.height;
 
-	var patternModel = prepareModel(xMax, yMax);
-
-	if (doFill) {
-		var cBank = [colors[0],colors[1]];
-		var currentRowColor = 0, currentColor = 0;
-		for (var y = 0; y < yMax; y++) {
-			currentColor = currentRowColor;
-			for (var x = 0; x < xMax; x++) {
-				var key = x + xMax * y, token = patternModel[key];
-				if (outlineOnly && !token) {
-					drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
-				} else {
-					if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
-						if ((x == 0) && (token.slant == '\\')) {
-							currentRowColor = currentColor = 1 - currentRowColor;
-						}
-						drawHalfBox(context, cBank[currentColor], cBank[1 - currentColor], x, y, token, ratio, viewOffset);
-						currentColor = 1 - currentColor;
-						if ((x == 0) && (token.slant == '/')) {
-							currentRowColor = 1 - currentRowColor;
-						}
-					} else {
+	prepareModel(xMax, yMax).done(function(patternModel){
+		if (doFill) {
+			var cBank = [colors[0],colors[1]];
+			var currentRowColor = 0, currentColor = 0;
+			for (var y = 0; y < yMax; y++) {
+				currentColor = currentRowColor;
+				for (var x = 0; x < xMax; x++) {
+					var key = x + xMax * y, token = patternModel[key];
+					if (outlineOnly && !token) {
 						drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
+					} else {
+						if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
+							if ((x == 0) && (token.slant == '\\')) {
+								currentRowColor = currentColor = 1 - currentRowColor;
+							}
+							drawHalfBox(context, cBank[currentColor], cBank[1 - currentColor], x, y, token, ratio, viewOffset);
+							currentColor = 1 - currentColor;
+							if ((x == 0) && (token.slant == '/')) {
+								currentRowColor = 1 - currentRowColor;
+							}
+						} else {
+							drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
+						}
 					}
 				}
 			}
+
+		} else {
+			var item, color, colorKey;
+			for (var i = 0, max = patternModel.length; i < max; i++) {
+				item = patternModel[i];
+				if (!item) continue;
+				var x = i % xMax, y = Math.floor(i / xMax);
+				colorKey = (item.idx % (colorsCount || 2));
+				color = ((alternate)
+						? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
+						: colors[colorKey]);
+				drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
+			}
 		}
 
-	} else {
-		var item, color, colorKey;
-		for (var i = 0, max = patternModel.length; i < max; i++) {
-			item = patternModel[i];
-			if (!item) continue;
-			var x = i % xMax, y = Math.floor(i / xMax);
-			colorKey = (item.idx % (colorsCount || 2));
-			color = ((alternate)
-					? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
-					: colors[colorKey]);
-			drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
-		}
-	}
+	});
+
 }
 
 function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
