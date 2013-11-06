@@ -3,15 +3,18 @@
 <head>
 	<title>New kind of fractals - Fractals in relatively prime integers (coprime integers).</title>
 	<style>
+		body {
+			background-color : #efefef;
+		}
 		input[type=text] {
 			width: 60px;
 		}
 	</style>
 
 </head>
-<body bgcolor="#efefef">
+<body>
 <a href="/about.html"><b>About</b></a>
-<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>&nbsp;<select name="colors" id="number_or_colors" title="Number of colors">
+<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>&nbsp;<label for="number_or_colors">Colors: </label><select name="colors" id="number_or_colors" title="Number of colors">
 	<option value="1">1</option>
 	<option value="2">2</option>
 	<option value="3">3</option>
@@ -22,8 +25,9 @@
 	<option value="8">8</option>
 	<option value="9">9</option>
 	<option value="10">10</option>
-</select>&nbsp;<select name="ratio" id="ratio" title="Cell size">
+</select>&nbsp;<label for="ratio">Cell size: </label><select name="ratio" id="ratio" title="Cell size">
 	<option value=".5">1/2</option>
+	<option value=".6666666666">2/3</option>
 	<option value="1">1</option>
 	<option value="2">2</option>
 	<option value="3">3</option>

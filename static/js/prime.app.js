@@ -51,7 +51,7 @@ function initCanvas(view, model) {
 
 	view.canvas[0].width = model.canvas.width;
 	view.canvas[0].height = model.canvas.height;
-	view.canvas.on('mousedown', function (evt) {
+	view.canvas.on('click', function (evt) {
 		var mousePos = getMousePos(view.canvas[0], model, evt);
 
 		model.patternSize.width = mousePos.x;
@@ -130,10 +130,9 @@ function initCanvas(view, model) {
 	});
 	view.increase.on('click', function(){
 		var min = Math.min(model.patternSize.width, model.patternSize.height),
-				max = Math.max(model.patternSize.width, model.patternSize.height),
-				next = max + min;
+				max = Math.max(model.patternSize.width, model.patternSize.height);
 
-		model.patternSize.width = next;
+		model.patternSize.width = max + min;
 		model.patternSize.height = max;
 
 		view.inputW.val(model.patternSize.width);
@@ -172,7 +171,7 @@ function prepareBoard(canvas, model) {
 	if (ratio * model.patternSize.width > 300) {
 		var max, min, seq = [
 			max = Math.max(model.patternSize.width, model.patternSize.height),
-			min = Math.min(model.patternSize.width, model.patternSize.height),
+			min = Math.min(model.patternSize.width, model.patternSize.height)
 		], diff = max - min;
 
 		while(diff > 1) {
@@ -211,21 +210,21 @@ function lcm(a, b) {
 	return a * b / gcd(a , b);
 }
 
-function prepareModel(xMax, yMax) {
+function prepareModel(thread, xMax, yMax) {
 	var def = new $.Deferred(), state = {
 		result: [],
 		current: 0,
 		max: lcm(xMax, yMax),
-		inc: function(){
+		doIncrement: function(){
 			this.current++;
 		},
-		condition: function(){
+		getCondition: function(){
 			return this.current < this.max;
 		},
 		getResult: function(){
 			return this.result;
 		},
-		body: function(){
+		run: function(){
 			var i = this.current;
 			var moduloCoords, wholePartCoords, isEvenPair, reflectedCoords, directionPair;
 			var result = this.result;
@@ -264,24 +263,28 @@ function prepareModel(xMax, yMax) {
 			};
 		}
 	};
-	performAsync(def, state);
+	performAsync(thread, def, state);
 
 	return def.promise();
 }
 
-function performAsync(def, state){
-	var iters = 100;
+function performAsync(thread, def, state){
+	var iters = 1000, stopwatch = new Date() - 0;
+	if (thread.state() == 'rejected')
+		return;
 	while(iters--) {
-		var cond;
-		for(; cond = state.condition(); state.inc()) {
-			state.body();
-		}
-		if (!cond) {
+		var cond = state.getCondition();
+		if (cond) {
+			state.run();
+			state.doIncrement();
+		} else {
 			def.resolve(state.getResult());
 			return;
 		}
 	}
-	window.setTimeout(function(){ performAsync(def, state); }, 10);
+
+	console.log(stopwatch + ', took ' + (new Date() - stopwatch) + 'ms');
+	window.setTimeout(function(){ performAsync(thread, def, state); }, 52);
 }
 
 function drawPatterns($canvas, model) {
@@ -297,57 +300,109 @@ function drawPatterns($canvas, model) {
 			outlineOnly = model.outline,
 			colors = model.colorBank;
 
+	var thread = model.thread;
+	if (thread) {
+		thread.reject();
+	}
+
 	var xMax = coords.width, yMax = coords.height;
 
-	prepareModel(xMax, yMax).done(function(patternModel){
-		if (doFill) {
-			var cBank = [colors[0],colors[1]];
-			var currentRowColor = 0, currentColor = 0;
-			for (var y = 0; y < yMax; y++) {
-				currentColor = currentRowColor;
-				for (var x = 0; x < xMax; x++) {
-					var key = x + xMax * y, token = patternModel[key];
-					if (outlineOnly && !token) {
-						drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
-					} else {
-						if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
-							if ((x == 0) && (token.slant == '\\')) {
-								currentRowColor = currentColor = 1 - currentRowColor;
-							}
-							drawHalfBox(context, cBank[currentColor], cBank[1 - currentColor], x, y, token, ratio, viewOffset);
-							currentColor = 1 - currentColor;
-							if ((x == 0) && (token.slant == '/')) {
-								currentRowColor = 1 - currentRowColor;
-							}
-						} else {
-							drawSolidBox(context, cBank[currentColor], x, y, ratio, viewOffset);
+	model.thread = $.Deferred(function(def){
+		prepareModel(def, xMax, yMax).done(function(patternModel){
+			if (doFill) {
+				fillAsync(def, {
+					initialY: 0,
+					initialX: 0,
+					currentY: 0,
+					currentX: 0,
+					maxY: yMax,
+					maxX: xMax,
+					currentRowColor: 0,
+					currentColor: 0,
+					colorBank: [colors[0], colors[1]],
+					result: {},
+					model: patternModel,
+					mode: outlineOnly ? 'outline' : 'full',
+					doIncrement: function(){
+						this.currentX++;
+						if (this.currentX < this.maxX)
+							return;
+
+						this.currentX = this.initialX;
+						this.currentY++;
+
+						this.currentColor = this.currentRowColor;
+
+					},
+					getCondition: function(){
+						return this.currentY < this.maxY;
+					},
+					getResult: function(){
+						return this.result;
+					},
+					run: function(){
+						var x = this.currentX, y = this.currentY;
+						var key = x + this.maxX * y, token = this.model[key];
+						switch(this.mode) {
+							case 'outline':
+								if (!token) {
+									drawSolidBox(context, this.colorBank[this.currentColor], x, y, ratio, viewOffset);
+								}
+								break;
+							case 'full':
+								if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
+									if ((x == 0) && (token.slant == '\\')) {
+										this.currentRowColor = this.currentColor = 1 - this.currentRowColor;
+									}
+									drawHalfBox(context, this.colorBank[this.currentColor], this.colorBank[1 - this.currentColor], x, y, token, ratio, viewOffset);
+									this.currentColor = 1 - this.currentColor;
+									if ((x == 0) && (token.slant == '/')) {
+										this.currentRowColor = 1 - this.currentRowColor;
+									}
+								} else {
+									drawSolidBox(context, this.colorBank[this.currentColor], x, y, ratio, viewOffset);
+								}
+
+								break;
 						}
 					}
+				}).done(function(){
+					def.resolve();
+				});
+
+			} else {
+				var item, color, colorKey;
+				for (var i = 0, max = patternModel.length; i < max; i++) {
+					item = patternModel[i];
+					if (!item) continue;
+					var x = i % xMax, y = Math.floor(i / xMax);
+					colorKey = (item.idx % (colorsCount || 2));
+					color = ((alternate)
+							? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
+							: colors[colorKey]);
+					drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
 				}
+				def.resolve();
 			}
 
-		} else {
-			var item, color, colorKey;
-			for (var i = 0, max = patternModel.length; i < max; i++) {
-				item = patternModel[i];
-				if (!item) continue;
-				var x = i % xMax, y = Math.floor(i / xMax);
-				colorKey = (item.idx % (colorsCount || 2));
-				color = ((alternate)
-						? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
-						: colors[colorKey]);
-				drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
-			}
-		}
-
+		});
+	});
+	model.thread.always(function(){
+		delete model.thread;
 	});
 
+}
+
+function fillAsync(thread, initialState){
+	var def = new $.Deferred();
+	performAsync(thread, def, initialState);
+	return def.promise();
 }
 
 function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
 	context.beginPath();
 	context.strokeStyle = style;
-	var diffX = direction % 2, diffY = Math.floor(direction / 2)
+	var diffX = direction % 2, diffY = Math.floor(direction / 2);
 	var x = viewOffset.x + (fromX + diffX) * ratio,
 			y = viewOffset.y + (fromY + diffY) * ratio;
 
