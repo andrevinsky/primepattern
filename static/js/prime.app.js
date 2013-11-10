@@ -9,6 +9,8 @@
 $(function () {
 	initCanvas({
 		canvas: $('#myCanvas'),
+		canvasUI: $('#interaction_layer'),
+		canvasEcho: $('.canvas-echo'),
 		colorSelector: $('#number_or_colors'),
 		inputW: $('#canvas_width'),
 		inputH: $('#canvas_height'),
@@ -19,7 +21,9 @@ $(function () {
 		alternateColors: $('#alternate_colors'),
 		swapper: $('#swap_sides'),
 		reduce: $('#reduce_sides'),
-		increase: $('#increase_sides')
+		increase: $('#increase_sides'),
+		pixelate: $('#pixelate'),
+		doArrows: $('#show_directions')
 	}, {
 		canvas: { width: 1400, height: 1000 },
 		colors: 2,
@@ -28,6 +32,9 @@ $(function () {
 		fill: false,
 		outline: false,
 		alternate: false,
+		pixelate: false,
+		doArrows: true,
+		doArrowsLast: true,
 		viewOffset: {
 			x: 10,
 			y: 10
@@ -47,12 +54,18 @@ $(function () {
 	});
 });
 
+function checkRules(model) {
+	if (model.ratio < 7) {
+		model.doArrows = false;
+	} else {
+		model.doArrows = model.doArrowsLast;
+	}
+}
+
 function initCanvas(view, model) {
 
-	view.canvas[0].width = model.canvas.width;
-	view.canvas[0].height = model.canvas.height;
-	view.canvas.on('click', function (evt) {
-		var mousePos = getMousePos(view.canvas[0], model, evt);
+	view.canvasUI.on('click', function (evt) {
+		var mousePos = getMousePos(view.canvasUI[0], model, evt);
 
 		model.patternSize.width = mousePos.x;
 		model.patternSize.height = mousePos.y;
@@ -60,32 +73,44 @@ function initCanvas(view, model) {
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
 
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
 	view.colorSelector.val(model.colors).on('change', function(){
 		model.colors = $(this).val() >>> 0;
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
 	view.ratioCtl.val(model.ratio).on('change', function(){
 		model.ratio = parseFloat($(this).val());
-		drawPatterns(view.canvas, model);
+		checkRules(model);
+		drawPatterns(view, model);
 	});
 
 	view.alternateColors.prop('checked', model.alternate).on('change', function(){
 		model.alternate = $(this).is(':checked');
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
+	});
+
+	view.pixelate.prop('checked', model.pixelate).on('change', function(){
+		model.pixelate = $(this).is(':checked');
+		drawPatterns(view, model);
+	});
+
+	view.doArrows.prop('checked', model.doArrows).on('change', function(){
+		model.doArrowsLast = model.doArrows = $(this).is(':checked');
+		checkRules(model);
+		drawPatterns(view, model);
 	});
 
 	view.fill.prop('checked', model.fill).on('change', function(){
 		model.fill = $(this).is(':checked');
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
 	view.outline.prop('checked', model.outline).on('change', function(){
 		model.outline = $(this).is(':checked');
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
 
@@ -95,7 +120,7 @@ function initCanvas(view, model) {
 		evt.preventDefault();
 		model.patternSize.width = view.inputW.val() >>> 0;
 		model.patternSize.height = view.inputH.val() >>> 0;
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 		return false;
 	});
 
@@ -107,7 +132,7 @@ function initCanvas(view, model) {
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
 
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
 	view.reduce.on('click', function(){
@@ -126,7 +151,7 @@ function initCanvas(view, model) {
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
 
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 	view.increase.on('click', function(){
 		var min = Math.min(model.patternSize.width, model.patternSize.height),
@@ -138,25 +163,28 @@ function initCanvas(view, model) {
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
 
-		drawPatterns(view.canvas, model);
+		drawPatterns(view, model);
 	});
 
-	drawPatterns(view.canvas, model);
+	drawPatterns(view, model);
 }
 
 function prepareBoard(canvas, model) {
-	var context = canvas.getContext('2d'),
-			coords = {
-				x: model.patternSize.width,
-				y: model.patternSize.height
-			},
-			ratio = model.ratio,
-			viewOffset = model.viewOffset;
+
+	var  viewOffset = model.viewOffset, ratio = model.ratio, coords = {
+		x: model.patternSize.width,
+		y: model.patternSize.height
+	};
+
+	canvas.width = viewOffset.x * 3 + coords.x * ratio;
+	canvas.height = viewOffset.y * 4 + coords.y * ratio;
+
+	var context = canvas.getContext('2d');
 
 	context.font = "10pt sans-serif";
 	context.beginPath();
 	//context.clearRect(0, 0, canvas.width, canvas.height);
-	context.fillStyle = "rgb(256,256,256)";
+	context.fillStyle = "rgba(255,255,255, 0)";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	var xStart = viewOffset.x,
@@ -167,7 +195,7 @@ function prepareBoard(canvas, model) {
 
 	var _gcd = gcd(coords.x, coords.y),_lcm = coords.x * coords.y / _gcd;
 
-	var info = "(" + (coords.x) + ", " + (coords.y) + "), LCM: " + _lcm + ", GCD: " + _gcd;
+	var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
 	if (ratio * model.patternSize.width > 300) {
 		var max, min, seq = [
 			max = Math.max(model.patternSize.width, model.patternSize.height),
@@ -287,9 +315,12 @@ function performAsync(thread, def, state){
 	window.setTimeout(function(){ performAsync(thread, def, state); }, 52);
 }
 
-function drawPatterns($canvas, model) {
+function drawPatterns(view, model) {
 
-	var canvas = $canvas[0],
+	view.canvas.show();
+	view.canvasEcho.hide();
+
+	var canvas = view.canvas[0],
 			context = prepareBoard(canvas, model),
 			coords = model.patternSize,
 			colorsCount = model.colors,
@@ -371,7 +402,7 @@ function drawPatterns($canvas, model) {
 				});
 
 			} else {
-				var item, color, colorKey;
+				var item, color, colorKey, pixelate = model.pixelate, doArrows = model.doArrows;
 				for (var i = 0, max = patternModel.length; i < max; i++) {
 					item = patternModel[i];
 					if (!item) continue;
@@ -380,14 +411,22 @@ function drawPatterns($canvas, model) {
 					color = ((alternate)
 							? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
 							: colors[colorKey]);
-					drawLineNew(context, color, x, y, item.direction, ratio, viewOffset);
+					if (pixelate){
+						drawSolidBox(context, color, x, y, ratio, viewOffset);
+					} else
+						drawLineNew(context, color, x, y, item.direction, ratio, viewOffset, doArrows);
 				}
 				def.resolve();
 			}
 
 		});
 	});
-	model.thread.always(function(){
+	model.thread.done(function(){
+		var uri = canvas.toDataURL('image/png');
+		view.canvasEcho.first().prop('src', uri).show().width(view.canvas.width()).height(view.canvas.height()).show();
+		view.canvas.hide();
+
+	}).always(function(){
 		delete model.thread;
 	});
 
@@ -399,19 +438,28 @@ function fillAsync(thread, initialState){
 	return def.promise();
 }
 
-function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset) {
+function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset, doArrows) {
 	context.beginPath();
 	context.strokeStyle = style;
 	var diffX = direction % 2, diffY = Math.floor(direction / 2);
 	var x = viewOffset.x + (fromX + diffX) * ratio,
 			y = viewOffset.y + (fromY + diffY) * ratio;
 
-	context.moveTo(x, y + 1.5);
-	context.lineTo(
-			viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
-			viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
+	if (doArrows) {
+		context.moveTo(x, y + 1.5);
+		context.lineTo(
+				viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
+				viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
 
-	context.lineTo(x, y - 1.5);
+		context.lineTo(x, y - 1.5);
+	} else {
+		context.moveTo(x, y);
+		context.lineTo(
+				viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
+				viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
+
+		context.lineTo(x, y);
+	}
 	context.stroke();
 }
 
@@ -419,7 +467,7 @@ function drawSolidBox(context, style, x, y, ratio, viewOffset) {
 	context.beginPath();
 	context.fillStyle = style;
 	context.fillRect(viewOffset.x + x * ratio, viewOffset.y + y * ratio, ratio, ratio);
-	//context.stroke();
+	context.stroke();
 }
 
 function drawHalfBox(context, currentColor, supplementaryColor, x, y, token, ratio, viewOffset) {
