@@ -16,12 +16,18 @@ $(function () {
 		inputH: $('#canvas_height'),
 		dimensions: $('#draw_form'),
 		ratioCtl: $('#ratio'),
+		provideInfo: $('#provide_info'),
+		toggleOy: $('#toggle_y'),
 		fill: $('#fill_colors'),
 		outline: $('#outline_fill'),
 		alternateColors: $('#alternate_colors'),
 		swapper: $('#swap_sides'),
 		reduce: $('#reduce_sides'),
 		increase: $('#increase_sides'),
+		resizeLeft: $('#resize_left'),
+		resizeRight: $('#resize_right'),
+		resizeUp: $('#resize_up'),
+		resizeDown: $('#resize_down'),
 		pixelate: $('#pixelate'),
 		doArrows: $('#show_directions')
 	}, {
@@ -29,6 +35,8 @@ $(function () {
 		colors: 2,
 		patternSize: { width: 15, height: 8},
 		ratio: 10,
+		provideInfo: true,
+		toggleOy: false,
 		fill: false,
 		outline: false,
 		alternate: false,
@@ -133,6 +141,23 @@ function initCanvas(view, model) {
 		view.inputH.val(model.patternSize.height);
 
 		drawPatterns(view, model);
+	});
+
+	$(document).on('keydown', function(evt){
+		if (!evt.ctrlKey || evt.shiftKey)
+			return;
+		if(evt.keyCode == 37) {
+			// left
+		}
+		if(evt.keyCode == 38) {
+			// up
+		}
+		if(evt.keyCode == 39) {
+			// right
+		}
+		if(evt.keyCode == 40) {
+			// down
+		}
 	});
 
 	view.reduce.on('click', function(){
