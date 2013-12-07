@@ -33,7 +33,7 @@ $(function () {
 	}, {
 		canvas: { width: 1400, height: 1000 },
 		colors: 2,
-		patternSize: { width: 15, height: 8},
+		patternSize: { width: 4, height: 3},
 		ratio: 10,
 		provideInfo: true,
 		toggleOy: false,
@@ -70,6 +70,19 @@ function checkRules(model) {
 	}
 }
 
+function runDependencies(view, model) {
+	checkRules(model);
+	fillCbDependencies(view, model);
+}
+
+function fillCbDependencies(view, model) {
+	if (model.fill && (gcd(model.patternSize.width, model.patternSize.height) > 1)) {
+		view.outline.removeProp('disabled');
+	} else {
+		view.outline.prop('disabled','disabled');
+	}
+}
+
 function initCanvas(view, model) {
 
 	view.canvasUI.on('click', function (evt) {
@@ -81,6 +94,7 @@ function initCanvas(view, model) {
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
 
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
@@ -91,7 +105,7 @@ function initCanvas(view, model) {
 
 	view.ratioCtl.val(model.ratio).on('change', function(){
 		model.ratio = parseFloat($(this).val());
-		checkRules(model);
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
@@ -105,14 +119,26 @@ function initCanvas(view, model) {
 		drawPatterns(view, model);
 	});
 
+	view.toggleOy.prop('checked', model.toggleOy).on('change', function(){
+		model.toggleOy = $(this).is(':checked');
+		drawPatterns(view, model);
+	});
+
+	view.provideInfo.prop('checked', model.provideInfo).on('change', function(){
+		model.provideInfo = $(this).is(':checked');
+		drawPatterns(view, model);
+	});
+
 	view.doArrows.prop('checked', model.doArrows).on('change', function(){
 		model.doArrowsLast = model.doArrows = $(this).is(':checked');
-		checkRules(model);
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
 	view.fill.prop('checked', model.fill).on('change', function(){
 		model.fill = $(this).is(':checked');
+
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
@@ -128,6 +154,7 @@ function initCanvas(view, model) {
 		evt.preventDefault();
 		model.patternSize.width = view.inputW.val() >>> 0;
 		model.patternSize.height = view.inputH.val() >>> 0;
+		runDependencies(view, model);
 		drawPatterns(view, model);
 		return false;
 	});
@@ -139,25 +166,30 @@ function initCanvas(view, model) {
 
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
-
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
 	$(document).on('keydown', function(evt){
-		if (!evt.ctrlKey || evt.shiftKey)
+		if (!evt.shiftKey)
 			return;
 		if(evt.keyCode == 37) {
 			// left
+			view.resizeLeft.click();
 		}
 		if(evt.keyCode == 38) {
 			// up
+			view.resizeUp.click();
 		}
 		if(evt.keyCode == 39) {
 			// right
+			view.resizeRight.click();
 		}
 		if(evt.keyCode == 40) {
 			// down
+			view.resizeDown.click();
 		}
+		return false;
 	});
 
 	view.reduce.on('click', function(){
@@ -175,7 +207,7 @@ function initCanvas(view, model) {
 
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
-
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 	view.increase.on('click', function(){
@@ -187,11 +219,85 @@ function initCanvas(view, model) {
 
 		view.inputW.val(model.patternSize.width);
 		view.inputH.val(model.patternSize.height);
-
+		runDependencies(view, model);
 		drawPatterns(view, model);
 	});
 
+	view.resizeLeft.on('click', function(){
+		if (model.patternSize.width <= model.patternSize.height) {
+			return;
+		}
+		model.patternSize.width -= model.patternSize.height;
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+		runDependencies(view, model);
+		drawPatterns(view, model);
+	});
+
+	view.resizeRight.on('click', function(){
+
+		model.patternSize.width += model.patternSize.height;
+
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+		runDependencies(view, model);
+		drawPatterns(view, model);
+	});
+
+	view.resizeUp.on('click', function(){
+		if (model.toggleOy)
+			return view.resizeDown.click();
+		if (model.patternSize.height <= model.patternSize.width) {
+			return;
+		}
+		model.patternSize.height -= model.patternSize.width;
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+		runDependencies(view, model);
+		drawPatterns(view, model);
+	});
+
+	view.resizeDown.on('click', function(){
+		if (model.toggleOy)
+			return view.resizeUp.click();
+
+		model.patternSize.height += model.patternSize.width;
+
+		view.inputW.val(model.patternSize.width);
+		view.inputH.val(model.patternSize.height);
+		runDependencies(view, model);
+		drawPatterns(view, model);
+	});
+
+
+	runDependencies(view, model);
 	drawPatterns(view, model);
+}
+
+
+function provideInfo(model, coords, ratio, context, xEnd, yEnd) {
+	var _gcd = gcd(coords.x, coords.y), _lcm = coords.x * coords.y / _gcd;
+
+	var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
+	if (ratio * model.patternSize.width > 300) {
+		var max, min, seq = [
+			max = Math.max(model.patternSize.width, model.patternSize.height),
+			min = Math.min(model.patternSize.width, model.patternSize.height)
+		], diff = max - min;
+
+		while (diff > 1) {
+			seq.push(diff);
+			max = Math.max(min, diff);
+			min = Math.min(min, diff);
+			diff = max - min;
+		}
+		info += ', Seq: [' + seq.join(', ') + ']';
+	}
+
+	context.beginPath();
+	context.strokeStyle = '#444';
+	context.textAlign = "right";
+	context.strokeText(info, xEnd + 20, yEnd + 20);
 }
 
 function prepareBoard(canvas, model) {
@@ -218,35 +324,15 @@ function prepareBoard(canvas, model) {
 	var xEnd = viewOffset.x + coords.x * ratio,
 			yEnd = viewOffset.y + coords.y * ratio;
 
-	var _gcd = gcd(coords.x, coords.y),_lcm = coords.x * coords.y / _gcd;
-
-	var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
-	if (ratio * model.patternSize.width > 300) {
-		var max, min, seq = [
-			max = Math.max(model.patternSize.width, model.patternSize.height),
-			min = Math.min(model.patternSize.width, model.patternSize.height)
-		], diff = max - min;
-
-		while(diff > 1) {
-			seq.push(diff);
-			max = Math.max(min, diff);
-			min = Math.min(min, diff);
-			diff = max - min;
-		}
-		info += ', Seq: [' + seq.join(', ') + ']';
+	if (model.provideInfo) {
+		provideInfo(model, coords, ratio, context, xEnd, yEnd);
 	}
-
-	context.beginPath();
-	context.strokeStyle = '#444';
-	context.textAlign="right";
-	context.strokeText(info, xEnd + 20, yEnd + 20);
 
 	context.moveTo(xStart, yStart);
 	context.lineTo(xStart, yEnd);
 	context.lineTo(xEnd, yEnd);
 	context.lineTo(xEnd, yStart);
 	context.lineTo(xStart, yStart);
-
 	context.stroke();
 
 	return context;
@@ -301,17 +387,19 @@ function prepareModel(thread, xMax, yMax) {
 				y: isEvenPair.y ? moduloCoords.y : (yMax - 1) - moduloCoords.y
 			};
 
-			directionPair = {
-				x: (isEvenPair.x ? 1 : -1),
-				y: (isEvenPair.y ? 1 : -1)
-			};
 			var key = reflectedCoords.x + xMax * reflectedCoords.y;
 			if (result[key]) {
 				debugger;
 			}
+			var map = {
+				0: 0, // x - even, y - even -> I (0)
+				1: 1, // x - odd, y - even -> II (1)
+				2: 3, // x - even, y - odd -> IV (3)
+				3: 2  // x - odd, y - odd -> III (4)
+			};
 			result[key] = {
-				slant: directionPair.x * directionPair.y == 1 ? '\\' : '/',
-				direction: (isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2),
+				point: reflectedCoords,
+				direction: map[(isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2)],
 				idx: i
 			};
 		}
@@ -365,6 +453,7 @@ function drawPatterns(view, model) {
 
 	model.thread = $.Deferred(function(def){
 		prepareModel(def, xMax, yMax).done(function(patternModel){
+
 			if (doFill) {
 				fillAsync(def, {
 					initialY: 0,
@@ -407,12 +496,12 @@ function drawPatterns(view, model) {
 								break;
 							case 'full':
 								if (token && (alternate ? ((token.idx % 2) == 0) : ((token.idx % 2) == 1))) {
-									if ((x == 0) && (token.slant == '\\')) {
+									if ((x == 0) && ((token.direction === 0)||(token.direction == 2))) {
 										this.currentRowColor = this.currentColor = 1 - this.currentRowColor;
 									}
 									drawHalfBox(context, this.colorBank[this.currentColor], this.colorBank[1 - this.currentColor], x, y, token, ratio, viewOffset);
 									this.currentColor = 1 - this.currentColor;
-									if ((x == 0) && (token.slant == '/')) {
+									if ((x == 0) && ((token.direction == 1)||(token.direction == 3))) {
 										this.currentRowColor = 1 - this.currentRowColor;
 									}
 								} else {
@@ -428,18 +517,26 @@ function drawPatterns(view, model) {
 
 			} else {
 				var item, color, colorKey, pixelate = model.pixelate, doArrows = model.doArrows;
+
+				viewOffset.yBase = model.toggleOy ? yMax : 0;
 				for (var i = 0, max = patternModel.length; i < max; i++) {
 					item = patternModel[i];
-					if (!item) continue;
-					var x = i % xMax, y = Math.floor(i / xMax);
-					colorKey = (item.idx % (colorsCount || 2));
+					if (!item)
+						continue;
+
+					var idx = item.idx;
+					var x = item.point.x,
+							y = item.point.y;
+
+					colorKey = (idx  % (colorsCount || 2));
 					color = ((alternate)
 							? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
 							: colors[colorKey]);
+
 					if (pixelate){
 						drawSolidBox(context, color, x, y, ratio, viewOffset);
 					} else
-						drawLineNew(context, color, x, y, item.direction, ratio, viewOffset, doArrows);
+						drawLineNew(context, color, item.point, item.direction, ratio, viewOffset, doArrows, model.toggleOy);
 				}
 				def.resolve();
 			}
@@ -463,29 +560,97 @@ function fillAsync(thread, initialState){
 	return def.promise();
 }
 
-function drawLineNew(context, style, fromX, fromY, direction, ratio, viewOffset, doArrows) {
+function drawLineNew(context, style, boxCoords, direction, ratio, viewOffset, doArrows, toggleOy, skipMainDiag, skipSecDiag) {
 	context.beginPath();
 	context.strokeStyle = style;
-	var diffX = direction % 2, diffY = Math.floor(direction / 2);
-	var x = viewOffset.x + (fromX + diffX) * ratio,
-			y = viewOffset.y + (fromY + diffY) * ratio;
 
-	if (doArrows) {
-		context.moveTo(x, y + 1.5);
-		context.lineTo(
-				viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
-				viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
+	var makeLine = bindArgs(context, makeVect);
 
-		context.lineTo(x, y - 1.5);
+	var rotApos = feedArray(null, curry(null, rot, direction)),
+			toWorld = feedArray(null, curry(null, transpose, ratio, ratio, viewOffset.x, viewOffset.y)),
+			toWorldDiff = feedArray(null, curry(null, transpose, ratio, ratio, 0, 0));
+
+	var vector = rotApos([1, 1]);
+	var basePoint = add([boxCoords.x, boxCoords.y], [[0,0], [1, 0], [1, 1], [0, 1]][direction]);
+
+	if (skipMainDiag && ((direction == 1)||(direction == 3))) { return; }
+	if (skipSecDiag && ((direction === 0)||(direction == 2))) { return; }
+
+	if (!doArrows) {
+		makeLine(toWorld(basePoint), toWorldDiff(vector));
 	} else {
-		context.moveTo(x, y);
-		context.lineTo(
-				viewOffset.x + (fromX + diffX + ((diffX === 0 ) ? 1 : -1)) * ratio,
-				viewOffset.y + (fromY + diffY + ((diffY === 0 ) ? 1 : -1)) * ratio);
-
-		context.lineTo(x, y);
+		makeLine(toWorld(basePoint), toWorldDiff(vector));
+		var endPin = add(basePoint, vector);
+		var v1 = rot(direction, -(7/12),-(5/12)), v2 = rot(direction, -(5/12),-(7/12));
+		makeLine(toWorld(endPin), toWorldDiff(v1));
+		makeLine(toWorld(endPin), toWorldDiff(v2));
+		makeLine(toWorld(add(endPin, v1)), toWorldDiff(add(v2, neg(v1))));
 	}
+
 	context.stroke();
+}
+
+function makeVect(from, vect) {
+	var fromX = from[0], fromY = from[1], vX = vect[0], vY = vect[1];
+	this.moveTo(fromX, fromY);
+	this.lineTo(fromX + vX, fromY + vY);
+}
+
+function transpose(kX, kY, offsetX, offsetY, x, y) {
+	return [offsetX + x * kX, offsetY + y * kY];
+}
+
+function add(v1, v2) {
+	return [v1[0] + v2[0], v1[1] + v2[1]];
+}
+function neg(v1) {
+	return [-v1[0], -v1[1]];
+}
+
+function rot(degShort, x, y) {
+	var sD, cD;
+	switch(degShort % 4) {
+		case 0: // 45 deg;
+			sD = 0; cD = 1;
+			break;
+		case 1: // 45 + 90 deg
+			sD = 1; cD = 0;
+			break
+		case 2: // 45 + 180 deg
+			sD = 0; cD = -1;
+			break;
+		case 3: // 45 + 270 deg
+			sD = -1; cD = 0;
+			break;
+	}
+	return [x * cD - y * sD, y * cD + x * sD];
+}
+
+function bindArgs(context, func, Tfunc) {
+	var isTFuncPresent = arguments.length == 3;
+	if (isTFuncPresent)
+		return function(){
+			return func.apply(context || this, Tfunc.apply(this, arguments));
+		};
+	else {
+		return function(){
+			return func.apply(context || this, arguments);
+		};
+	}
+}
+
+function curry(context, func, _args) {
+	var args = Array.prototype.slice.call(arguments, 2);
+	return function(){
+		var args1 = args.concat(Array.prototype.slice.apply(arguments));
+		return func.apply(context || this, args1);
+	};
+}
+
+function feedArray(context, func) {
+	return function(args) {
+		return func.apply(context || this, args);
+	};
 }
 
 function drawSolidBox(context, style, x, y, ratio, viewOffset) {
@@ -496,7 +661,7 @@ function drawSolidBox(context, style, x, y, ratio, viewOffset) {
 }
 
 function drawHalfBox(context, currentColor, supplementaryColor, x, y, token, ratio, viewOffset) {
-	if (token.slant == '/') {
+	if ((token.direction == 0)||(token.direction == 2)) {
 		context.beginPath();
 		context.fillStyle = currentColor;
 		context.strokeStyle = 'transparent'; //currentColor;
