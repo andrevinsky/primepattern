@@ -536,7 +536,7 @@ function drawPatterns(view, model) {
 					if (pixelate){
 						drawSolidBox(context, color, x, y, ratio, viewOffset);
 					} else
-						drawLineNew(context, color, item.point, item.direction, ratio, viewOffset, doArrows, model.toggleOy);
+						drawLineNew(context, color, item.point, item.direction, ratio, viewOffset, doArrows, model.toggleOy, model.skipMainDiag, model.skipSecDiag);
 				}
 				def.resolve();
 			}
@@ -570,6 +570,11 @@ function drawLineNew(context, style, boxCoords, direction, ratio, viewOffset, do
 			toWorld = feedArray(null, curry(null, transpose, ratio, ratio, viewOffset.x, viewOffset.y)),
 			toWorldDiff = feedArray(null, curry(null, transpose, ratio, ratio, 0, 0));
 
+	if (toggleOy) {
+		toWorld = feedArray(null, curry(null, transpose, ratio, -ratio, viewOffset.x, viewOffset.y + (ratio * viewOffset.yBase)));
+		toWorldDiff = feedArray(null, curry(null, transpose, ratio, -ratio, 0, 0));
+	}
+
 	var vector = rotApos([1, 1]);
 	var basePoint = add([boxCoords.x, boxCoords.y], [[0,0], [1, 0], [1, 1], [0, 1]][direction]);
 
@@ -580,8 +585,9 @@ function drawLineNew(context, style, boxCoords, direction, ratio, viewOffset, do
 		makeLine(toWorld(basePoint), toWorldDiff(vector));
 	} else {
 		makeLine(toWorld(basePoint), toWorldDiff(vector));
-		var endPin = add(basePoint, vector);
-		var v1 = rot(direction, -(7/12),-(5/12)), v2 = rot(direction, -(5/12),-(7/12));
+		var endPin = add(basePoint, vector),
+				v1 = rot(direction, -(7/12),-(5/12)),
+				v2 = rot(direction, -(5/12),-(7/12));
 		makeLine(toWorld(endPin), toWorldDiff(v1));
 		makeLine(toWorld(endPin), toWorldDiff(v2));
 		makeLine(toWorld(add(endPin, v1)), toWorldDiff(add(v2, neg(v1))));
