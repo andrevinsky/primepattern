@@ -28,6 +28,8 @@ $(function () {
 		resizeRight: $('#resize_right'),
 		resizeUp: $('#resize_up'),
 		resizeDown: $('#resize_down'),
+		skipMainDiag: $('#no_main_diag'),
+		skipSecDiag: $('#no_sec_diag'),
 		pixelate: $('#pixelate'),
 		doArrows: $('#show_directions')
 	}, {
@@ -43,6 +45,8 @@ $(function () {
 		pixelate: false,
 		doArrows: true,
 		doArrowsLast: true,
+		skipMainDiag: false,
+		skipSecDiag: false,
 		viewOffset: {
 			x: 10,
 			y: 10
@@ -106,6 +110,16 @@ function initCanvas(view, model) {
 	view.ratioCtl.val(model.ratio).on('change', function(){
 		model.ratio = parseFloat($(this).val());
 		runDependencies(view, model);
+		drawPatterns(view, model);
+	});
+
+	view.skipMainDiag.prop('checked', model.skipMainDiag).on('change', function(){
+		model.skipMainDiag = $(this).is(':checked');
+		drawPatterns(view, model);
+	});
+
+	view.skipSecDiag.prop('checked', model.skipSecDiag).on('change', function(){
+		model.skipSecDiag = $(this).is(':checked');
 		drawPatterns(view, model);
 	});
 
@@ -578,8 +592,8 @@ function drawLineNew(context, style, boxCoords, direction, ratio, viewOffset, do
 	var vector = rotApos([1, 1]);
 	var basePoint = add([boxCoords.x, boxCoords.y], [[0,0], [1, 0], [1, 1], [0, 1]][direction]);
 
-	if (skipMainDiag && ((direction == 1)||(direction == 3))) { return; }
-	if (skipSecDiag && ((direction === 0)||(direction == 2))) { return; }
+	if (skipSecDiag && ((direction == 1)||(direction == 3))) { return; }
+	if (skipMainDiag && ((direction === 0)||(direction == 2))) { return; }
 
 	if (!doArrows) {
 		makeLine(toWorld(basePoint), toWorldDiff(vector));
