@@ -425,11 +425,12 @@ function prepareModel(thread, xMax, yMax) {
 }
 
 function performAsync(thread, def, state){
-	var iters = 1000, stopwatch = new Date() - 0;
+	var timeSlot = 100, stopwatch = new Date() - 0, cond;
 	if (thread.state() == 'rejected')
 		return;
-	while(iters--) {
-		var cond = state.getCondition();
+
+	while((new Date() - stopwatch) < timeSlot) {
+		cond = state.getCondition();
 		if (cond) {
 			state.run();
 			state.doIncrement();
