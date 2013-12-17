@@ -95,6 +95,8 @@
 
 	function initCanvas(view, model) {
 
+		model = _.extend(model, fromHash());
+
 		view.canvasUI.on('click', function (evt) {
 			var mousePos = getMousePos(view.canvasUI[0], model, evt);
 
@@ -627,10 +629,13 @@
 
 			});
 		});
+
 		model.thread.done(function(){
 			var uri = canvas.toDataURL('image/png');
-			view.canvasEcho.first().prop('src', uri).attr('download', 'IMG_' + (new Date() - 0) + '.png').show().width(view.canvas.width()).height(view.canvas.height()).show();
-			view.saveAs.attr('href', uri).attr('download', 'IMG_' + (new Date() - 0) + '.png');
+			var filename = toFileName(model);
+			toHash(model);
+			view.canvasEcho.first().prop('src', uri).attr('download', filename).show().width(view.canvas.width()).height(view.canvas.height()).show();
+			view.saveAs.attr('href', uri).attr('download', filename);
 			view.canvas.hide();
 		}).always(function(){
 			delete model.thread;
@@ -929,6 +934,53 @@
 		}
 
 	}
+
+	function toFileName(m) {
+		return ['IMG_w', m.patternSize.width, '_h', m.patternSize.height, '_', (new Date() - 0), '.png'].join('');
+	}
+	function toHash(m) {
+		var str = _.map({
+			w: m.patternSize.width,
+			h: m.patternSize.height
+		}, function(v, k) { return [k, v].join('=');}).join('&');
+		location.hash = '!' + str;
+	}
+	function fromHash() {
+		var str = location.hash;
+		if (!/^#!/.test(str))
+			return {};
+		var map = {
+			'w' : 'patternSize.width',
+			'h' : 'patternSize.height'
+		};
+		var input = str.replace(/^#!/, '').split(/&/);
+		var obj = _.reduce(input, function(memo, v) {
+			var pair = v.split('=');
+			if (pair.length == 2) {
+				var value = ((/^\d+$/.test(pair[1])) ? pair[1] >>> 0 : pair[1]) ,trueKey = map[pair[0]];
+				if (trueKey) {
+					ensureObjValue(memo, trueKey.split(/\./), value);
+				}
+			}
+			return memo;
+		}, {});
+		return obj;
+
+		function ensureObjValue(obj, path, value) {
+			if (!path || !path.length)
+				return;
+			var prop = path[0], hasMore = path.length > 1;
+			if (hasMore) {
+				if (!obj[prop]) {
+					obj[prop] = {}
+				}
+				ensureObjValue(obj[prop], path.slice(1), value);
+			} else {
+				obj[prop] = value;
+			}
+		}
+	}
+
 
 	function getMousePos(canvas, model, evt) {
 		var ratio = model.ratio, offset = model.viewOffset;
