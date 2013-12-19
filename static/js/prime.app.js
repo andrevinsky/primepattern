@@ -887,8 +887,8 @@
 		}
 		function makeVect(from, vect) {
 			var fromX = from[0], fromY = from[1], vX = fromX + vect[0], vY = fromY + vect[1];
-			this.moveTo(fromX, fromY);
-			this.lineTo(vX, vY);
+			this.moveTo(fromX +.5, fromY +.5);
+			this.lineTo(vX +.5, vY +.5);
 		}
 		function makePolygon(from) {
 			var args = Array.prototype.slice.call(arguments, 1);
