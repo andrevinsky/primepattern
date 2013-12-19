@@ -14,7 +14,7 @@
 			canvas: $('#myCanvas'),
 			canvasUI: $('#interaction_layer'),
 			canvasEcho: $('.canvas-echo'),
-			colorSelector: $('#number_or_colors'),
+			colorSelector: $('#color_banks'),
 			inputW: $('#canvas_width'),
 			inputH: $('#canvas_height'),
 			dimensions: $('#draw_form'),
@@ -24,7 +24,6 @@
 			toggleOy: $('#toggle_y'),
 			fill: $('#fill_colors'),
 			outline: $('#outline_fill'),
-			alternateColors: $('#alternate_colors'),
 			swapper: $('#swap_sides'),
 			reduce: $('#reduce_sides'),
 			increase: $('#increase_sides'),
@@ -39,7 +38,6 @@
 			saveAs: $('#save_as')
 		}, {
 			canvas: { width: 1400, height: 1000 },
-			colors: 2,
 			patternSize: { width: 4, height: 3},
 			ratio: 10,
 			provideInfo: true,
@@ -47,7 +45,6 @@
 			toggleOy: false,
 			fill: false,
 			outline: false,
-			alternate: false,
 			pixelate: false,
 			doArrows: true,
 			doArrowsLast: true,
@@ -57,17 +54,22 @@
 				x: 10,
 				y: 10
 			},
-			colorBank: [
-				'#ffcccc',
-				'#123eab',
-				'#ffab00',
-				'#00cc00',
-				'#6f0aaa',
-				'#ff4040',
-				'#466fd5',
-				'#ffc040',
-				'#39e639',
-				'#9d3ed5'
+			lineColorBank: 2,
+			lineColorBanks: [
+					['#123eab'],
+					['#123eab', 'rgba(0,0,0,0)'],
+					['rgba(0,0,0,0)', '#123eab'],
+					['#123eab', '#ffcccc'],
+					['#ffcccc', '#123eab'],
+					['#123eab', '#ffcccc', 'rgba(0,0,0,0)'],
+					['#ffcccc', '#123eab', 'rgba(0,0,0,0)'],
+					['#ffcccc', '#123eab', '#ffab00', '#00cc00', '#6f0aaa',
+						'#ff4040', '#466fd5', '#ffc040', '#39e639', '#9d3ed5']
+			],
+			fillColorBank: 0,
+			fillColorBanks: [
+					['#ffcccc', '#123eab'],
+					['#123eab', '#ffcccc']
 			]
 		});
 	});
@@ -82,7 +84,33 @@
 
 	function runDependencies(view, model) {
 		checkRules(model);
+		adjustColorBanks(view, model);
 		fillCbDependencies(view, model);
+	}
+
+	function adjustColorBanks(view, model){
+		var doFill = model.fill;
+		var colorSwitch = view.colorSelector;
+		if (((colorSwitch.data('fill') == 'fill') && doFill) || ((colorSwitch.data('fill') == 'lines') && !doFill))
+			return;
+		var value, source;
+		if (doFill) {
+			colorSwitch.data('fill', 'fill');
+			value = model.fillColorBank;
+			source = model.fillColorBanks;
+		} else {
+			colorSwitch.data('fill', 'lines');
+			value = model.lineColorBank;
+			source = model.lineColorBanks;
+		}
+
+		var markup = _.map(source, function(v, k){
+			return [
+				'<option value="', k, '">', k, ': ', v.join('|').substr(0,20), '</option>'
+			].join('');
+		}).join('');
+
+		colorSwitch.html(markup).val(value);
 	}
 
 	function fillCbDependencies(view, model) {
@@ -111,7 +139,11 @@
 		});
 
 		view.colorSelector.val(model.colors).on('change', function(){
-			model.colors = $(this).val() >>> 0;
+			if (model.fill) {
+				model.fillColorBank = $(this).val() >>> 0;
+			} else {
+				model.lineColorBank = $(this).val() >>> 0;
+			}
 			drawPatterns(view, model);
 		});
 
@@ -128,11 +160,6 @@
 
 		view.skipSecDiag.prop('checked', model.skipSecDiag).on('change', function(){
 			model.skipSecDiag = $(this).is(':checked');
-			drawPatterns(view, model);
-		});
-
-		view.alternateColors.prop('checked', model.alternate).on('change', function(){
-			model.alternate = $(this).is(':checked');
 			drawPatterns(view, model);
 		});
 
@@ -464,13 +491,14 @@
 		var canvas = view.canvas[0],
 				//context = prepareBoard(canvas, model),
 				coords = model.patternSize,
-				colorsCount = model.colors,
 				ratio = model.ratio,
 				viewOffset = model.viewOffset,
-				alternate = model.alternate,
 				doFill = model.fill,
 				outlineOnly = model.outline,
-				colors = model.colorBank,
+				colors = doFill
+						? model.fillColorBanks[model.fillColorBank]
+						: model.lineColorBanks[model.lineColorBank],
+				colorsCount = colors.length,
 				toggleOy = model.toggleOy;
 
 		var thread = model.thread;
@@ -511,7 +539,7 @@
 						maxX: xMax,
 						currentRowColor: 0,
 						currentColor: 0,
-						colorBank: [colors[0], colors[1]],
+						colorBank: colors,
 						result: {},
 						model: patternModel,
 						mode: outlineOnly ? 'outline' : 'full',
@@ -548,7 +576,7 @@
 									}
 									break;
 								case 'full':
-									if (item && (alternate ? ((item.idx % 2) == 0) : ((item.idx % 2) == 1))) {
+									if (item && ((item.idx % 2) == 1)) {
 										direction = item.direction;
 										if ((x == 0) && ((direction === 0)||(direction == 2))) {
 											this.currentRowColor = this.currentColor = 1 - this.currentRowColor;
@@ -590,7 +618,7 @@
 							skipMainDiag = model.skipMainDiag,
 							skipSecDiag = model.skipSecDiag;
 
-					var item, color, colorKey, idx, direction;
+					var item, color, idx, direction;
 
 					for (var i = 0, max = patternModel.length; i < max; i++) {
 						item = patternModel[i];
@@ -599,10 +627,7 @@
 						idx = item.idx;
 						direction = item.direction;
 
-						colorKey = (idx  % (colorsCount || 2));
-						color = ((alternate)
-								? colors[Math.floor(colorKey / 2) * 2 + (1 - (colorKey % 2))]
-								: colors[colorKey]);
+						color = colors[idx % colorsCount];
 
 						if (skipMainDiag && ((direction === 0)||(direction == 2))) continue;
 						if (skipSecDiag && ((direction == 1)||(direction == 3))) continue;
