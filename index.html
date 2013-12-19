@@ -2,41 +2,13 @@
 <html>
 <head>
 	<title>New kind of fractals - Fractals in relatively prime integers (coprime integers).</title>
-	<style>
-		html, body {
-			height: 100%;
-			margin: 0;;
-		}
-		body {
-			background-color : #efefef;
-		}
-		input[type=text] {
-			width: 40px;
-		}
-		#interaction_layer {
-			position: relative;
-			width: 100%;
-			height: 100%;
-		}
-		#myCanvas {
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-		.canvas-echo {
-			display: none;
-			position: absolute;
-			top: 0;
-			left: 0;
-			background-color: #fff;
-		}
-	</style>
-
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400' rel='stylesheet' type='text/css' />
+	<link rel="stylesheet" href="static/css/style.css"/>
 </head>
 <body>
-<div class="">
-	<a href="/about.html"><b>?</b></a>
-	<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>
+<div class="b_dashboard">
+	<a href="/about.html" target="_blank"><b>?</b></a>&nbsp;
+	&nbsp;<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>
 	&nbsp;<label for="ratio">Size: </label><select name="ratio" id="ratio" title="Cell size">
 	<option value=".5">1/2</option>
 	<option value=".6666666666">2/3</option>

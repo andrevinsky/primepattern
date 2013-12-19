@@ -1,0 +1,46 @@
+
+
+html, body {
+	height: 100%;
+	margin: 0;
+}
+* {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+	font-size: 12px;
+	-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;
+}
+b {
+	font-weight: 400;
+}
+body {
+	background-color : #efefef;
+}
+input[type=text] {
+	width: 40px;
+}
+
+.b_dashboard {
+	background: #eee;
+	border-bottom: #666 solid 1px;
+	box-shadow: #888 0 0 6px 6px;
+	padding: 3px 6px;
+}
+
+#interaction_layer {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+#myCanvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.canvas-echo {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #fff;
+}
