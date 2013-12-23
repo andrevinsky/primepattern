@@ -22,7 +22,7 @@
 			provideInfo: $('#provide_info'),
 			provideAnalytics: $('#provide_analytics'),
 			toggleOy: $('#toggle_y'),
-			fill: $('#fill_colors'),
+			fill: $('[name="draw-mode"]'),
 			outline: $('#outline_fill'),
 			swapper: $('#swap_sides'),
 			reduce: $('#reduce_sides'),
@@ -189,8 +189,12 @@
 			drawPatterns(view, model);
 		});
 
-		view.fill.prop('checked', model.fill).on('change', function(){
-			model.fill = $(this).is(':checked');
+		view.fill.removeAttr('checked').filter('[value="' + (model.fill ? 'fill' : 'lines') + '"]').attr('checked', true);
+		view.fill.on('change', function(evt){
+			model.fill = {
+				'fill': true,
+				'lines': false
+			}[$(this).val()] || false;
 
 			runDependencies(view, model);
 			drawPatterns(view, model);
