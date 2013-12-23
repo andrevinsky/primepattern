@@ -47,3 +47,9 @@ input[type=text] {
 label {
 	margin: 0 .25em;
 }
+.warning {
+	float: right;
+	margin: 0 1em;
+	color: #ff6655;
+	font-weight: 400;
+}
