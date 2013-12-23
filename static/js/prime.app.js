@@ -22,6 +22,8 @@
 			provideInfo: $('#provide_info'),
 			provideAnalytics: $('#provide_analytics'),
 			toggleOy: $('#toggle_y'),
+			gridX: $('#toggle_g_x'),
+			gridY: $('#toggle_g_y'),
 			fill: $('[name="draw-mode"]'),
 			outline: $('#outline_fill'),
 			swapper: $('#swap_sides'),
@@ -44,6 +46,8 @@
 			provideInfo: true,
 			provideAnalytics: false,
 			toggleOy: false,
+			gridX: false,
+			gridY: false,
 			fill: false,
 			outline: false,
 			pixelate: false,
@@ -180,6 +184,16 @@
 
 		view.toggleOy.prop('checked', model.toggleOy).on('change', function(){
 			model.toggleOy = $(this).is(':checked');
+			drawPatterns(view, model);
+		});
+
+		view.gridX.prop('checked', model.gridX).on('change', function(){
+			model.gridX = $(this).is(':checked');
+			drawPatterns(view, model);
+		});
+
+		view.gridY.prop('checked', model.gridY).on('change', function(){
+			model.gridY = $(this).is(':checked');
 			drawPatterns(view, model);
 		});
 
@@ -620,6 +634,7 @@
 							}
 						}
 					}).done(function(){
+						drawing.grid(model.gridX, model.gridY);
 						if (model.provideAnalytics) {
 							drawing.analytics();
 						}
@@ -661,6 +676,7 @@
 							});
 						}
 					}
+					drawing.grid(model.gridX, model.gridY);
 					if (model.provideAnalytics) {
 						drawing.analytics();
 					}
@@ -820,6 +836,15 @@
 					}
 				}
 
+			},
+			grid: function(doX, doY){
+				var x = coords.x, y = coords.y, i;
+				if (doX)
+					for (i = 0; i < y; i++)
+						this.begin().setStrokeStyle('#ccc').makeLine(this.toWorld([0,i]), this.toWorldDiff([x, 0])).stroke();
+				if (doY)
+					for (i = 0; i < x; i++)
+						this.begin().setStrokeStyle('#ccc').makeLine(this.toWorld([i,0]), this.toWorldDiff([ 0, y])).stroke();
 			},
 			box: function(o) {
 				var boxCoords = o.from,
@@ -997,11 +1022,13 @@
 			'r': m.ratio,
 			'i': m.provideInfo,
 			'a': m.provideAnalytics,
-			'y': m.toggleOy
+			'y': m.toggleOy,
+			'gx' : m.gridX ? m.gridX : null,
+			'gy' : m.gridY ? m.gridY : null
 		}, function(v, k) {
 			if (v === null) return '';
 			return [k, v].join('=');}).join('&');
-		location.hash = '!' + str.replace(/&&+/, '&');
+		location.hash = '!' + str.replace(/&&+/g, '&');
 	}
 	function fromHash() {
 		var str = location.hash;
@@ -1020,10 +1047,14 @@
 			'r' : 'ratio',
 			'i' : 'provideInfo',
 			'a' : 'provideAnalytics',
-			'y' : 'toggleOy'
+			'y' : 'toggleOy',
+			'gx' : 'gridX',
+			'gy' : 'gridY'
 		};
 		var input = str.replace(/^#!/, '').split(/&/);
 		var obj = _.reduce(input, function(memo, v) {
+			if (!v)
+				return memo;
 			var pair = v.split('=');
 			if (pair.length == 2) {
 				var value = ((/^\d+$/.test(pair[1])) ? pair[1] >>> 0 : pair[1]) ,trueKey = map[pair[0]];
