@@ -71,6 +71,18 @@
 					['#ffcccc', '#123eab', '#ffab00', '#00cc00', '#6f0aaa',
 						'#ff4040', '#466fd5', '#ffc040', '#39e639', '#9d3ed5']
 			],
+			linePlusColorBank: 0,
+			linePlusColorBanks: [
+				[ '#123eab','rgba(0,0,0,0)',
+					'#12ab3e','rgba(0,0,0,0)',
+					'#ab123e','rgba(0,0,0,0)',
+					'#3e12ab','rgba(0,0,0,0)'],
+				[
+					'#ffcccc', '#ffcccc',		'#ffcccc',
+							'#ffcccc', '#123eab', '#123eab',
+				'rgba(0,0,0,0)', '#123eab', '#ffcccc',
+				'rgba(0,0,0,0)', 'rgba(0,0,0,0)', '#ffcccc'],
+			],
 			fillColorBank: 0,
 			fillColorBanks: [
 					['#ffcccc', '#123eab'],
@@ -96,17 +108,23 @@
 	function adjustColorBanks(view, model){
 		var doFill = model.fill;
 		var colorSwitch = view.colorSelector;
-		if (((colorSwitch.data('fill') == 'fill') && doFill) || ((colorSwitch.data('fill') == 'lines') && !doFill))
+		if (((colorSwitch.data('fill') == 'fill') && doFill)
+				|| ((colorSwitch.data('fill') == 'lines') && (doFill === false))
+				|| ((colorSwitch.data('fill') == 'lines-colored') && (doFill === 0)))
 			return;
 		var value, source;
-		if (doFill) {
+		if (doFill === true) {
 			colorSwitch.data('fill', 'fill');
 			value = model.fillColorBank;
 			source = model.fillColorBanks;
-		} else {
+		} else if (doFill === false) {
 			colorSwitch.data('fill', 'lines');
 			value = model.lineColorBank;
 			source = model.lineColorBanks;
+		} else {
+			colorSwitch.data('fill', 'lines-colored');
+			value = model.linePlusColorBank;
+			source = model.linePlusColorBanks;
 		}
 
 		var markup = _.map(source, function(v, k){
@@ -125,7 +143,7 @@
 		view.pixelate.closest('label').toggle(!model.fill);
 		view.outline.closest('label').toggle(model.fill);
 
-		var showExtraFillOptions = (model.fill && (gcd(model.patternSize.width, model.patternSize.height) > 1));
+		var showExtraFillOptions = ((!!model.fill) && (gcd(model.patternSize.width, model.patternSize.height) > 1));
 		view.warningFillGcd.toggle(showExtraFillOptions);
 
 		if (showExtraFillOptions) {
@@ -152,12 +170,9 @@
 			drawPatterns(view, model);
 		});
 
-		view.colorSelector.val(model.colors).on('change', function(){
-			if (model.fill) {
-				model.fillColorBank = $(this).val() >>> 0;
-			} else {
-				model.lineColorBank = $(this).val() >>> 0;
-			}
+		view.colorSelector.val(model[getDrawModeColorBankName(model.fill)]).on('change', function(){
+			model[getDrawModeColorBankName(model.fill)] = $(this).val() >>> 0;
+
 			drawPatterns(view, model);
 		});
 
@@ -213,12 +228,13 @@
 			drawPatterns(view, model);
 		});
 
-		view.fill.removeAttr('checked').filter('[value="' + (model.fill ? 'fill' : 'lines') + '"]').attr('checked', true);
+		view.fill.removeAttr('checked').filter('[value="' + getDrawModeName(model.fill) + '"]').attr('checked', true);
 		view.fill.on('change', function(evt){
 			model.fill = {
 				'fill': true,
-				'lines': false
-			}[$(this).val()] || false;
+				'lines': false,
+				'lines-colored': 0
+			}[$(this).val()];
 
 			runDependencies(view, model);
 			drawPatterns(view, model);
@@ -357,67 +373,15 @@
 	}
 
 
-	function provideInfo(model, coords, ratio, context, xEnd, yEnd) {
-		var _gcd = gcd(coords.x, coords.y), _lcm = coords.x * coords.y / _gcd;
-
-		var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
-		if (ratio * model.patternSize.width > 300) {
-			var max, min, seq = [
-				max = Math.max(model.patternSize.width, model.patternSize.height),
-				min = Math.min(model.patternSize.width, model.patternSize.height)
-			], diff = max - min;
-
-			while (diff > 1) {
-				seq.push(diff);
-				max = Math.max(min, diff);
-				min = Math.min(min, diff);
-				diff = max - min;
-			}
-			info += ', Seq: [' + seq.join(', ') + ']';
-		}
-
-		context.beginPath();
-		context.strokeStyle = '#444';
-		context.textAlign = "right";
-		context.strokeText(info, xEnd + 20, yEnd + 20);
+	function getDrawModeName(input) {
+		if (input === true) return 'fill';
+		if (input === false) return 'lines';
+		return 'lines-colored';
 	}
-
-	function prepareBoard(canvas, model) {
-
-		var  viewOffset = model.viewOffset, ratio = model.ratio, coords = {
-			x: model.patternSize.width,
-			y: model.patternSize.height
-		};
-
-		canvas.width = viewOffset.x * 3 + coords.x * ratio;
-		canvas.height = viewOffset.y * 4 + coords.y * ratio;
-
-		var context = canvas.getContext('2d');
-
-		context.font = "10pt sans-serif";
-		context.beginPath();
-		//context.clearRect(0, 0, canvas.width, canvas.height);
-		context.fillStyle = "rgba(255,255,255, 1)";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-
-		var xStart = viewOffset.x,
-				yStart = viewOffset.y;
-
-		var xEnd = viewOffset.x + coords.x * ratio,
-				yEnd = viewOffset.y + coords.y * ratio;
-
-		if (model.provideInfo) {
-			provideInfo(model, coords, ratio, context, xEnd, yEnd);
-		}
-
-		context.moveTo(xStart, yStart);
-		context.lineTo(xStart, yEnd);
-		context.lineTo(xEnd, yEnd);
-		context.lineTo(xEnd, yStart);
-		context.lineTo(xStart, yStart);
-		context.stroke();
-
-		return context;
+	function getDrawModeColorBankName(input) {
+		if (input === true) return 'fillColorBank';
+		if (input === false) return 'lineColorBank';
+		return 'linePlusColorBank';
 	}
 
 	function gcd(a, b) {
@@ -523,10 +487,11 @@
 				viewOffset = model.viewOffset,
 				doFill = model.fill,
 				outlineOnly = model.outline,
-				colors = doFill
-						? model.fillColorBanks[model.fillColorBank]
-						: model.lineColorBanks[model.lineColorBank],
+				colorBankName = getDrawModeColorBankName(model.fill),
+				colorBanks = model[colorBankName + 's'],
+				colors = colorBanks[Math.min(model[colorBankName], colorBanks.length - 1)] || [],
 				colorsCount = colors.length,
+				colorsCountX =  Math.floor(colorsCount / 4),
 				toggleOy = model.toggleOy;
 
 		var thread = model.thread;
@@ -556,7 +521,6 @@
 				if (model.provideInfo) {
 					drawing.info();
 				}
-
 
 				if (doFill) {
 					fillAsync(def, {
@@ -646,7 +610,8 @@
 					var pixelate = model.pixelate,
 							doArrows = model.doArrows,
 							skipMainDiag = model.skipMainDiag,
-							skipSecDiag = model.skipSecDiag;
+							skipSecDiag = model.skipSecDiag,
+							coloringDir = (doFill === 0);
 
 					var item, color, idx, direction;
 
@@ -657,7 +622,11 @@
 						idx = item.idx;
 						direction = item.direction;
 
-						color = colors[idx % colorsCount];
+						if (coloringDir) {
+							color = colors[direction * colorsCountX + idx % colorsCountX];
+						} else {
+							color = colors[idx % colorsCount];
+						}
 
 						if (skipMainDiag && ((direction === 0)||(direction == 2))) continue;
 						if (skipSecDiag && ((direction == 1)||(direction == 3))) continue;
@@ -1012,7 +981,7 @@
 		var str = _.map({
 			'w': m.patternSize.width,
 			'h': m.patternSize.height,
-			'f': m.fill,
+			'f': m.fill ? true :((m.fill === false) ? false : 0),
 			'c': m.fill ? m.fillColorBank : m.lineColorBank,
 			'o': m.fill ? m.outline : null,
 			'p': !m.fill ? m.pixelate : null,
@@ -1067,10 +1036,12 @@
 
 		if ((typeof obj['fill'] != 'undefined')) {
 			if ((typeof obj['_colorBank'] != 'undefined')) {
-				if (obj.fill) {
+				if (obj.fill === true) {
 					obj.fillColorBank = obj['_colorBank'];
-				} else {
+				} else if (obj.fill === false){
 					obj.lineColorBank = obj['_colorBank'];
+				} else {
+					obj.linePlusColorBank = obj['_colorBank'];
 				}
 				delete obj['_colorBank'];
 			}
