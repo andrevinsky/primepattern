@@ -35,7 +35,8 @@
 			skipSecDiag: $('#no_sec_diag'),
 			pixelate: $('#pixelate'),
 			doArrows: $('#show_directions'),
-			saveAs: $('#save_as')
+			saveAs: $('#save_as'),
+			warningFillGcd: $('#fill_warning')
 		}, {
 			canvas: { width: 1400, height: 1000 },
 			patternSize: { width: 4, height: 3},
@@ -120,7 +121,10 @@
 		view.pixelate.closest('label').toggle(!model.fill);
 		view.outline.closest('label').toggle(model.fill);
 
-		if (model.fill && (gcd(model.patternSize.width, model.patternSize.height) > 1)) {
+		var showExtraFillOptions = (model.fill && (gcd(model.patternSize.width, model.patternSize.height) > 1));
+		view.warningFillGcd.toggle(showExtraFillOptions);
+
+		if (showExtraFillOptions) {
 			view.outline.removeProp('disabled');
 		} else {
 			view.outline.prop('disabled','disabled');
@@ -528,6 +532,7 @@
 					toggleOy: toggleOy,
 					ratio: ratio,
 					viewOffset: viewOffset,
+					fill: doFill,
 					coords: {
 						x: coords.width,
 						y: coords.height
@@ -747,6 +752,7 @@
 			},
 			info: function() {
 				var _gcd = gcd(coords.x, coords.y), _lcm = coords.x * coords.y / _gcd;
+
 				var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
 				var xEnd = viewOffset.x + coords.x * ratio,
 						yEnd = viewOffset.y + coords.y * ratio;
@@ -765,11 +771,15 @@
 					info += ', Seq: [' + seq.join(', ') + ']';
 				}
 
-				this.begin().setStrokeStyle('#222');
-
+				this.begin()
+				if ((_gcd > 1) && (model.fill === true)) {
+					this.setStrokeStyle('#ff6655');
+					context.textAlign = "left";
+					context.strokeText(' *)', xEnd, yEnd + 20);
+				}
+				this.setStrokeStyle('#222');
 				context.textAlign = "right";
 				context.strokeText(info, xEnd, yEnd + 20);
-
 				return this;
 			},
 			analytics: function() {
