@@ -7,33 +7,36 @@
 </head>
 <body>
 <div class="b_dashboard">
-	<a href="/about.html" target="_blank"><b>?</b></a>&nbsp;
-	&nbsp;<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>
-	&nbsp;<label for="ratio">Size: </label><select name="ratio" id="ratio" title="Cell size">
-	<option value=".5">1/2</option>
-	<option value=".6666666666">2/3</option>
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="10">10</option>
-	<option value="15">15</option>
-	<option value="20">20</option>
-</select>
-	&nbsp; <label for="draw_mode_fill"><input type="radio" name="draw-mode" value="fill" id="draw_mode_fill"/>Fill </label><label for="draw_mode_lines"><input type="radio" name="draw-mode" value="lines" id="draw_mode_lines"/>Lines</label> &nbsp;<label for="color_banks"> Banks:</label><select name="colors" id="color_banks" title="Color bank"></select>
-	&nbsp;<label for="toggle_y" style=""><input type="checkbox" id="toggle_y" value="0" /> Rev. Y</label>
-	&nbsp;<label for="no_main_diag" style=""><input type="checkbox" id="no_main_diag" value="0" /> No '\'</label>
-	&nbsp;<label for="no_sec_diag" style=""><input type="checkbox" id="no_sec_diag" value="0" /> No '/'</label>
-	&nbsp;<label for="provide_info"><input type="checkbox" id="provide_info" value="0" /> Info</label>
-	&nbsp;<label for="provide_analytics"><input type="checkbox" id="provide_analytics" value="0" /> Analytics</label>
-	&nbsp;<label for="pixelate"><input type="checkbox" id="pixelate" value="0" /> Pixelate</label>
-	&nbsp;<label for="show_directions"><input type="checkbox" id="show_directions" value="0" /> Arrows</label>
-	&nbsp;<label for="outline_fill"><input type="checkbox" id="outline_fill" value="1" /> Contour</label>
-	&nbsp;<button id="swap_sides">Swap</button>&nbsp;<button id="resize_left">&lt;</button><button id="resize_right">&gt;</button><button id="resize_up">^</button><button id="resize_down">v</button><button id="reduce_sides">-</button>&nbsp;<button id="increase_sides">+</button>&nbsp;<a id="save_as" href="#">Save</a>
+	<div class=""><a href="/about.html" target="_blank"><b>?</b></a>&nbsp;
+		&nbsp;<form id="draw_form" style="display: inline-block;"><input type="text" id="canvas_width" name="width" placeholder="width" />&nbsp;x&nbsp;<input type="text" id="canvas_height" name="height" placeholder="height" />&nbsp;<input type="submit" value="Draw" /></form>
+		&nbsp;<label for="ratio">Size: </label><select name="ratio" id="ratio" title="Cell size">
+			<option value=".5">1/2</option>
+			<option value=".6666666666">2/3</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="10">10</option>
+			<option value="15">15</option>
+			<option value="20">20</option>
+		</select>
+		<label for="draw_mode_fill"><input type="radio" name="draw-mode" value="fill" id="draw_mode_fill"/>Fill </label><label for="draw_mode_lines"><input type="radio" name="draw-mode" value="lines" id="draw_mode_lines"/>Lines</label> &nbsp;<label for="color_banks"> Banks:</label><select name="colors" id="color_banks" title="Color bank"></select>
+		<label for="toggle_y" style=""><input type="checkbox" id="toggle_y" value="0" /> Rev. Y</label>
+		<label for="provide_info"><input type="checkbox" id="provide_info" value="0" /> Info</label>
+		<label for="provide_analytics"><input type="checkbox" id="provide_analytics" value="0" /> Analytics</label>
+		&nbsp;<button id="swap_sides">Swap</button>&nbsp;<button id="resize_left">&lt;</button><button id="resize_right">&gt;</button><button id="resize_up">^</button><button id="resize_down">v</button><button id="reduce_sides">-</button>&nbsp;<button id="increase_sides">+</button>&nbsp;<a id="save_as" href="#">Save</a>
+	</div>
+	<div class="">
+		<label for="no_main_diag" style=""><input type="checkbox" id="no_main_diag" value="0" /> No '\'</label>
+		<label for="no_sec_diag" style=""><input type="checkbox" id="no_sec_diag" value="0" /> No '/'</label>
+		<label for="pixelate"><input type="checkbox" id="pixelate" value="0" /> Pixelate</label>
+		<label for="show_directions"><input type="checkbox" id="show_directions" value="0" /> Arrows</label>
+		<label for="outline_fill"><input type="checkbox" id="outline_fill" value="1" /> Contour</label>
+	</div>
 </div>
 <div id="interaction_layer">
 	<canvas id="myCanvas"></canvas>
