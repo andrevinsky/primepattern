@@ -44,3 +44,6 @@ input[type=text] {
 	left: 0;
 	background-color: #fff;
 }
+label {
+	margin: 0 .25em;
+}

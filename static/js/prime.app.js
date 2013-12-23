@@ -114,6 +114,12 @@
 	}
 
 	function fillCbDependencies(view, model) {
+		view.doArrows.closest('label').toggle(!model.fill);
+		view.skipMainDiag.closest('label').toggle(!model.fill);
+		view.skipSecDiag.closest('label').toggle(!model.fill);
+		view.pixelate.closest('label').toggle(!model.fill);
+		view.outline.closest('label').toggle(model.fill);
+
 		if (model.fill && (gcd(model.patternSize.width, model.patternSize.height) > 1)) {
 			view.outline.removeProp('disabled');
 		} else {
