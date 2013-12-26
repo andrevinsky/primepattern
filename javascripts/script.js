@@ -1,5 +1,5 @@
 (function($) {
-$(document).ready(function(){
+$(function(){
 
   // putting lines by the pre blocks
   $("pre").each(function(){
@@ -18,7 +18,6 @@ $(document).ready(function(){
     }
     $(this).before("<pre class='lines'>" + lines.join("\n") + "</pre>");
   });
-
   var headings = [];
 
   var collectHeaders = function(){
