@@ -999,7 +999,7 @@
 			'w': m.patternSize.width,
 			'h': m.patternSize.height,
 			'f': m.fill ? true :((m.fill === false) ? false : 0),
-			'c': m.fill ? m.fillColorBank : m.lineColorBank,
+			'c': m[getDrawModeColorBankName(m.fill)],
 			'o': m.fill ? m.outline : null,
 			'p': !m.fill ? m.pixelate : null,
 			'd': !m.fill ? m.doArrows : null,
@@ -1014,8 +1014,14 @@
 			'gy' : m.gridY ? m.gridY : null
 		}, function(v, k) {
 			if (v === null) return '';
-			return [k, v].join('=');}).join('&');
+			return [k, fromValue(v)].join('=');}).join('&');
 		location.hash = '!' + str.replace(/&&+/g, '&');
+
+		function fromValue(input){
+			if (input === true) return 'y';
+			if (input === false) return 'n';
+			return input;
+		}
 	}
 	function fromHash() {
 		var str = location.hash;
@@ -1126,8 +1132,8 @@
 		}
 
 		function parseValue(input){
-			if (/^true$/.test(input)) return true;
-			if (/^false$/.test(input)) return false;
+			if (/^(true)|(y)$/i.test(input)) return true;
+			if (/^(false)|(n)$/i.test(input)) return false;
 			if (/^\d+$/.test(input)) return input >>> 0;
 			return input;
 		}
