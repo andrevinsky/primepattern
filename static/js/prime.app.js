@@ -37,6 +37,7 @@
 			skipSecDiag: $('#no_sec_diag'),
 			pixelate: $('#pixelate'),
 			doArrows: $('#show_directions'),
+			arrowSize: $('#arrow_size'),
 			saveAs: $('#save_as'),
 			warningFillGcd: $('#fill_warning')
 		}, {
@@ -52,6 +53,7 @@
 			outline: false,
 			pixelate: false,
 			doArrows: true,
+			arrowSize: 1,
 			doArrowsLast: true,
 			skipMainDiag: false,
 			skipSecDiag: false,
@@ -81,7 +83,7 @@
 					'#ffcccc', '#ffcccc',		'#ffcccc',
 							'#ffcccc', '#123eab', '#123eab',
 				'rgba(0,0,0,0)', '#123eab', '#ffcccc',
-				'rgba(0,0,0,0)', 'rgba(0,0,0,0)', '#ffcccc'],
+				'rgba(0,0,0,0)', 'rgba(0,0,0,0)', '#ffcccc']
 			],
 			fillColorBank: 0,
 			fillColorBanks: [
@@ -142,6 +144,7 @@
 		view.skipSecDiag.closest('label').toggle(!model.fill);
 		view.pixelate.closest('label').toggle(!model.fill);
 		view.outline.closest('label').toggle(model.fill);
+		view.arrowSize.add('label[for=arrow_size]').toggle(!model.fill);
 
 		var showExtraFillOptions = ((!!model.fill) && (gcd(model.patternSize.width, model.patternSize.height) > 1));
 		view.warningFillGcd.toggle(showExtraFillOptions);
@@ -178,6 +181,12 @@
 
 		view.ratioCtl.val(model.ratio).on('change', function(){
 			model.ratio = parseFloat($(this).val());
+			runDependencies(view, model);
+			drawPatterns(view, model);
+		});
+
+		view.arrowSize.val(model.arrowSize).on('change', function(){
+			model.arrowSize = $(this).val() >>> 0;
 			runDependencies(view, model);
 			drawPatterns(view, model);
 		});
@@ -486,6 +495,7 @@
 				ratio = model.ratio,
 				viewOffset = model.viewOffset,
 				doFill = model.fill,
+				arrowSize = model.arrowSize,
 				outlineOnly = model.outline,
 				colorBankName = getDrawModeColorBankName(model.fill),
 				colorBanks = model[colorBankName + 's'],
@@ -512,6 +522,7 @@
 					ratio: ratio,
 					viewOffset: viewOffset,
 					fill: doFill,
+					arrowSize: arrowSize,
 					coords: {
 						x: coords.width,
 						y: coords.height
@@ -684,7 +695,8 @@
 
 		var  viewOffset = model.viewOffset,
 				ratio = model.ratio,
-				coords = model.coords;
+				coords = model.coords,
+				arrowSize = model.arrowSize;
 
 		canvas.width = viewOffset.x * 2 + (coords.x + 1) * ratio;
 		canvas.height = viewOffset.y * 3 + (coords.y + 1) * ratio;
@@ -866,9 +878,14 @@
 				if (!makeArrow) {
 					this.makeLine(this.toWorld(basePoint), this.toWorldDiff(vector));
 				} else {
+					var arrCoords = [
+						[-(5/12),-(4/12)], // small
+						[-(7/12),-(5/12)], // normal
+						[-(9/12),-(7.5/12)]  // large
+					][arrowSize % 3], arrX = arrCoords[0], arrY = arrCoords[1];
 					var endPin = add(basePoint, vector),
-							v1 = rot(direction, -(7/12),-(5/12)),
-							v2 = rot(direction, -(5/12),-(7/12));
+							v1 = rot(direction, arrX,arrY),
+							v2 = rot(direction, arrY,arrX);
 					this.makeLine(this.toWorld(basePoint), this.toWorldDiff(vector))
 							.makeLine(this.toWorld(endPin), this.toWorldDiff(v1))
 							.makeLine(this.toWorld(endPin), this.toWorldDiff(v2))
@@ -986,6 +1003,7 @@
 			'o': m.fill ? m.outline : null,
 			'p': !m.fill ? m.pixelate : null,
 			'd': !m.fill ? m.doArrows : null,
+			'as': !m.fill ? m.arrowSize : null,
 			'sdm': !m.fill ? m.skipMainDiag : null,
 			'sds': !m.fill ? m.skipSecDiag : null,
 			'r': m.ratio,
@@ -1012,6 +1030,7 @@
 			'sds': '_skipSecDiag',
 			'p' : '_pixelate',
 			'd' : '_doArrows',
+			'as': '_arrowSize',
 			'o' : '_outline',
 			'r' : 'ratio',
 			'i' : 'provideInfo',
@@ -1079,6 +1098,13 @@
 					obj.doArrows = obj['_doArrows'];
 				}
 				delete obj['_doArrows'];
+			}
+
+			if ((typeof obj['_arrowSize'] != 'undefined')) {
+				if (!obj.fill) {
+					obj.arrowSize = obj['_arrowSize'];
+				}
+				delete obj['_arrowSize'];
 			}
 
 		}
