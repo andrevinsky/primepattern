@@ -708,7 +708,7 @@
 		return {
 			init: function() {
 				this.begin()
-						.setFillStyle('rgba(255,255,255, 1)');
+						.setFillStyle('rgba(255,255,255, 0)');
 				//context.clearRect(0, 0, canvas.width, canvas.height);
 				context.fillRect(0, 0, canvas.width, canvas.height);
 				return this;
