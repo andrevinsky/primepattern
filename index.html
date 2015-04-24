@@ -55,8 +55,18 @@
 	<img src="" alt="" class="canvas-echo" />
 </div>
 
-<script src="static/libs/jquery/jquery-1.10.2.js"></script>
-<script src="static/libs/underscore/underscore-min.js"></script>
+<script id="progress_bar_template" type="text/template">
+	<div class="b_progress-wrap">
+		<div class="b_progress-bar">
+			<div class="b_progress-gauge"></div>
+		</div>
+		<div class="b_progress-backdrop"></div>
+	</div>
+</script>
+
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/underscore/underscore-min.js"></script>
+<script src="bower_components/crunchtask/dst/crunchtask.js"></script>
 <script type="text/javascript" src="static/js/prime.app.js"></script>
 <script type="text/javascript">
 	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

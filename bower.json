@@ -1,0 +1,29 @@
+{
+  "name": "PrimePattern",
+  "version": "0.0.1",
+  "homepage": "http://andrewrevinsky.github.io/primepattern",
+  "authors": [
+    "Andrew Revinsky <arevinsky@gmail.com>"
+  ],
+  "description": "Patterns created by right-angle interstep billiards on co-primed sized rectangles and more",
+  "main": "index.html",
+  "keywords": [
+    "patterns",
+    "primes",
+    "primepattern"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "underscore": "~1.8.3",
+    "crunchtask": "~0.8.12"
+  }
+}

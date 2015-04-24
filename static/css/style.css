@@ -53,3 +53,60 @@ label {
 	color: #ff6655;
 	font-weight: 400;
 }
+
+body.m_overlay {
+	overflow: hidden;
+	position: relative;
+}
+.b_progress-wrap {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1050;
+	overflow: hidden;
+	-webkit-overflow-scrolling: touch;
+	outline: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	opacity: 1;
+	display: block;
+
+}
+.b_progress-backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	/*z-index: 1040;*/
+	background-color: #000;
+	opacity: .5;
+}
+.b_progress-bar {
+	position: absolute;
+	z-index: 1051;
+	top: 50%;
+	left: 50%;
+	display: block;
+	height: 30px;
+	width: 200px;
+	-webkit-transform : translateX(-50%) translateY(-50%); -moz-transform : translateX(-50%) translateY(-50%); -ms-transform : translateX(-50%) translateY(-50%); -o-transform : translateX(-50%) translateY(-50%); transform : translateX(-50%) translateY(-50%);
+	border: 1px solid darkgreen;
+	background-color : #fff;
+	border-radius: 3px;
+	overflow: hidden;
+	-webkit-box-shadow : 0px 0px 5px 5px rgba(255, 255, 255, .7);
+	-moz-box-shadow    : 0px 0px 5px 5px rgba(255, 255, 255, .7);
+	box-shadow         : 0px 0px 5px 5px rgba(255, 255, 255, .7);
+}
+
+.b_progress-gauge {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 0;
+	background-color : green;
+}
