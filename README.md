@@ -1,4 +1,4 @@
 primepattern
 ============
 
-Gerasimov Co-primes Billiard Fractalic Pattern
+Gerasimov Co-primes Billiard Fractal Pattern
