@@ -16,58 +16,58 @@
 
   $(function () {
     initCanvas({
-      canvas          : $('#myCanvas'),
-      canvasUI        : $('#interaction_layer'),
-      canvasEcho      : $('.canvas-echo'),
-      colorSelector   : $('#color_banks'),
-      inputW          : $('#canvas_width'),
-      inputH          : $('#canvas_height'),
-      dimensions      : $('#draw_form'),
-      ratioCtl        : $('#ratio'),
-      provideInfo     : $('#provide_info'),
+      canvas: $('#myCanvas'),
+      canvasUI: $('#interaction_layer'),
+      canvasEcho: $('.canvas-echo'),
+      colorSelector: $('#color_banks'),
+      inputW: $('#canvas_width'),
+      inputH: $('#canvas_height'),
+      dimensions: $('#draw_form'),
+      ratioCtl: $('#ratio'),
+      provideInfo: $('#provide_info'),
       provideAnalytics: $('#provide_analytics'),
-      toggleOy        : $('#toggle_y'),
-      gridX           : $('#toggle_g_x'),
-      gridY           : $('#toggle_g_y'),
-      fill            : $('[name="draw-mode"]'),
-      outline         : $('#outline_fill'),
-      swapper         : $('#swap_sides'),
-      reduce          : $('#reduce_sides'),
-      increase        : $('#increase_sides'),
-      resizeLeft      : $('#resize_left'),
-      resizeRight     : $('#resize_right'),
-      resizeUp        : $('#resize_up'),
-      resizeDown      : $('#resize_down'),
-      skipMainDiag    : $('#no_main_diag'),
-      skipSecDiag     : $('#no_sec_diag'),
-      pixelate        : $('#pixelate'),
-      doArrows        : $('#show_directions'),
-      arrowSize       : $('#arrow_size'),
-      saveAs          : $('#save_as'),
-      warningFillGcd  : $('#fill_warning')
+      toggleOy: $('#toggle_y'),
+      gridX: $('#toggle_g_x'),
+      gridY: $('#toggle_g_y'),
+      fill: $('[name="draw-mode"]'),
+      outline: $('#outline_fill'),
+      swapper: $('#swap_sides'),
+      reduce: $('#reduce_sides'),
+      increase: $('#increase_sides'),
+      resizeLeft: $('#resize_left'),
+      resizeRight: $('#resize_right'),
+      resizeUp: $('#resize_up'),
+      resizeDown: $('#resize_down'),
+      skipMainDiag: $('#no_main_diag'),
+      skipSecDiag: $('#no_sec_diag'),
+      pixelate: $('#pixelate'),
+      doArrows: $('#show_directions'),
+      arrowSize: $('#arrow_size'),
+      saveAs: $('#save_as'),
+      warningFillGcd: $('#fill_warning')
     }, {
-      canvas            : {width: 1400, height: 1000},
-      patternSize       : {width: 4, height: 3},
-      ratio             : 10,
-      provideInfo       : true,
-      provideAnalytics  : false,
-      toggleOy          : false,
-      gridX             : false,
-      gridY             : false,
-      fill              : false,
-      outline           : false,
-      pixelate          : false,
-      doArrows          : true,
-      arrowSize         : 1,
-      doArrowsLast      : true,
-      skipMainDiag      : false,
-      skipSecDiag       : false,
-      viewOffset        : {
+      canvas: {width: 1400, height: 1000},
+      patternSize: {width: 4, height: 3},
+      ratio: 10,
+      provideInfo: true,
+      provideAnalytics: false,
+      toggleOy: false,
+      gridX: false,
+      gridY: false,
+      fill: false,
+      outline: false,
+      pixelate: false,
+      doArrows: true,
+      arrowSize: 1,
+      doArrowsLast: true,
+      skipMainDiag: false,
+      skipSecDiag: false,
+      viewOffset: {
         x: 10,
         y: 10
       },
-      lineColorBank     : 2,
-      lineColorBanks    : [
+      lineColorBank: 2,
+      lineColorBanks: [
         ['#123eab'],
         ['#123eab', 'rgba(0,0,0,0)'],
         ['rgba(0,0,0,0)', '#123eab'],
@@ -78,7 +78,7 @@
         ['#ffcccc', '#123eab', '#ffab00', '#00cc00', '#6f0aaa',
           '#ff4040', '#466fd5', '#ffc040', '#39e639', '#9d3ed5']
       ],
-      linePlusColorBank : 0,
+      linePlusColorBank: 0,
       linePlusColorBanks: [
         ['#123eab', 'rgba(0,0,0,0)',
           '#12ab3e', 'rgba(0,0,0,0)',
@@ -90,8 +90,8 @@
           'rgba(0,0,0,0)', '#123eab', '#ffcccc',
           'rgba(0,0,0,0)', 'rgba(0,0,0,0)', '#ffcccc']
       ],
-      fillColorBank     : 0,
-      fillColorBanks    : [
+      fillColorBank: 0,
+      fillColorBanks: [
         ['#ffcccc', '#123eab'],
         ['#123eab', '#ffcccc']
       ]
@@ -115,9 +115,9 @@
   function adjustColorBanks(view, model) {
     var doFill = model.fill;
     var colorSwitch = view.colorSelector;
-    if (((colorSwitch.data('fill') == 'fill') && doFill)
-      || ((colorSwitch.data('fill') == 'lines') && (doFill === false))
-      || ((colorSwitch.data('fill') == 'lines-colored') && (doFill === 0)))
+    if (((colorSwitch.data('fill') === 'fill') && doFill)
+      || ((colorSwitch.data('fill') === 'lines') && (doFill === false))
+      || ((colorSwitch.data('fill') === 'lines-colored') && (doFill === 0)))
       return;
     var value, source;
     if (doFill === true) {
@@ -243,10 +243,10 @@
     });
 
     view.fill.removeAttr('checked').filter('[value="' + getDrawModeName(model.fill) + '"]').attr('checked', true);
-    view.fill.on('change', function (evt) {
+    view.fill.on('change', function () {
       model.fill = {
-        'fill'         : true,
-        'lines'        : false,
+        'fill': true,
+        'lines': false,
         'lines-colored': 0
       }[$(this).val()];
 
@@ -273,6 +273,7 @@
 
     view.swapper.on('click', function () {
       var tmp = model.patternSize.width;
+      //noinspection JSSuspiciousNameCombination
       model.patternSize.width = model.patternSize.height;
       model.patternSize.height = tmp;
 
@@ -285,19 +286,19 @@
     $(document).on('keydown', function (evt) {
       if (!evt.shiftKey)
         return;
-      if (evt.keyCode == 37) {
+      if (evt.keyCode === 37) {
         // left
         view.resizeLeft.click();
       }
-      if (evt.keyCode == 38) {
+      if (evt.keyCode === 38) {
         // up
         view.resizeUp.click();
       }
-      if (evt.keyCode == 39) {
+      if (evt.keyCode === 39) {
         // right
         view.resizeRight.click();
       }
-      if (evt.keyCode == 40) {
+      if (evt.keyCode === 40) {
         // down
         view.resizeDown.click();
       }
@@ -308,7 +309,7 @@
       var min = Math.min(model.patternSize.width, model.patternSize.height),
         max = Math.max(model.patternSize.width, model.patternSize.height),
         diff = max - min;
-      if (min == max) {
+      if (min === max) {
         return;
       }
       if (diff <= 1) {
@@ -339,6 +340,7 @@
       if (model.patternSize.width <= model.patternSize.height) {
         return;
       }
+      //noinspection JSSuspiciousNameCombination
       model.patternSize.width -= model.patternSize.height;
       view.inputW.val(model.patternSize.width);
       view.inputH.val(model.patternSize.height);
@@ -348,6 +350,7 @@
 
     view.resizeRight.on('click', function () {
 
+      //noinspection JSSuspiciousNameCombination
       model.patternSize.width += model.patternSize.height;
 
       view.inputW.val(model.patternSize.width);
@@ -362,6 +365,7 @@
       if (model.patternSize.height <= model.patternSize.width) {
         return;
       }
+      //noinspection JSSuspiciousNameCombination
       model.patternSize.height -= model.patternSize.width;
       view.inputW.val(model.patternSize.width);
       view.inputH.val(model.patternSize.height);
@@ -373,6 +377,7 @@
       if (model.toggleOy)
         return view.resizeUp.click();
 
+      //noinspection JSSuspiciousNameCombination
       model.patternSize.height += model.patternSize.width;
 
       view.inputW.val(model.patternSize.width);
@@ -400,9 +405,9 @@
   }
 
   function gcd(a, b) {
-    if (a == b) return a;
+    if (a === b) return a;
     var _a = Math.max(a, b), _b = Math.min(a, b), _an;
-    if ((_an = (_a % _b)) == 0) return _b;
+    if ((_an = (_a % _b)) === 0) return _b;
     return gcd(_b, _an);
   }
 
@@ -444,8 +449,8 @@
         };
 
         isEvenPair = {
-          x: (wholePartCoords.x % 2) == 0,
-          y: (wholePartCoords.y % 2) == 0
+          x: (wholePartCoords.x % 2) === 0,
+          y: (wholePartCoords.y % 2) === 0
         };
 
         reflectedCoords = {
@@ -466,14 +471,15 @@
         };
 
         result[key] = {
-          point    : reflectedCoords,
+          point: reflectedCoords,
           direction: map[(isEvenPair.x ? 0 : 1) + (isEvenPair.y ? 0 : 2)],
-          idx      : current
+          idx: current
         };
 
         current++;
       }, 150, 0);
-      fin(function () {});
+      fin(function () {
+      });
     }),
 
     taskFillAsync = new CrunchTask(function (init, body, fin) {
@@ -501,7 +507,7 @@
         result = {};
       });
 
-      body(function (resolve, reject) {
+      body(function (resolve) {
 
         var x, y,
           point = {x: (x = currentX), y: (y = currentY)},
@@ -514,33 +520,33 @@
             if (!item) {
               drawing.box({
                 color: colorBank[currentColor],
-                from : point
+                from: point
               });
             }
             break;
           case 'full':
-            if (item && ((item.idx % 2) == 1)) {
+            if (item && ((item.idx % 2) === 1)) {
               direction = item.direction;
-              if ((x == 0) && ((direction === 0) || (direction == 2))) {
+              if ((x === 0) && ((direction === 0) || (direction === 2))) {
                 currentRowColor = currentColor = 1 - currentRowColor;
               }
 
               drawing.halfBox({
-                color    : colorBank[currentColor],
-                colorTo  : colorBank[1 - currentColor],
-                from     : point,
+                color: colorBank[currentColor],
+                colorTo: colorBank[1 - currentColor],
+                from: point,
                 direction: direction
               });
 
               currentColor = 1 - currentColor;
 
-              if ((x == 0) && ((direction == 1) || (direction == 3))) {
+              if ((x === 0) && ((direction === 1) || (direction === 3))) {
                 currentRowColor = 1 - currentRowColor;
               }
             } else {
               drawing.box({
                 color: colorBank[currentColor],
-                from : point
+                from: point
               });
             }
             break;
@@ -582,7 +588,7 @@
     view.canvasEcho.hide();
 
     var canvas = view.canvas[0],
-    //context = prepareBoard(canvas, model),
+      //context = prepareBoard(canvas, model),
       coords = model.patternSize,
       ratio = model.ratio,
       viewOffset = model.viewOffset,
@@ -615,12 +621,12 @@
       modelPreparation.done(function (patternModel) {
 
         var drawing = getDrawing(canvas, {
-          toggleOy  : toggleOy,
-          ratio     : ratio,
+          toggleOy: toggleOy,
+          ratio: ratio,
           viewOffset: viewOffset,
-          fill      : doFill,
-          arrowSize : arrowSize,
-          coords    : {
+          fill: doFill,
+          arrowSize: arrowSize,
+          coords: {
             x: coords.width,
             y: coords.height
           }
@@ -632,12 +638,12 @@
 
         if (doFill) {
           fillAsync(def, {
-            maxY     : yMax,
-            maxX     : xMax,
+            maxY: yMax,
+            maxX: xMax,
             colorBank: colors,
-            model    : patternModel,
-            mode     : outlineOnly,
-            drawing  : drawing
+            model: patternModel,
+            mode: outlineOnly,
+            drawing: drawing
           }).done(function () {
             drawing.grid(model.gridX, model.gridY);
             if (model.provideAnalytics) {
@@ -656,7 +662,7 @@
 
           var color, idx, direction;
 
-          var plotting = CrunchTask.forEach(patternModel, function(item){
+          var plotting = CrunchTask.forEach(patternModel, function (item) {
             //item = patternModel[i];
             if (!item) return;
 
@@ -669,31 +675,31 @@
               color = colors[idx % colorsCount];
             }
 
-            if (skipMainDiag && ((direction === 0) || (direction == 2))) return;
-            if (skipSecDiag && ((direction == 1) || (direction == 3))) return;
+            if (skipMainDiag && ((direction === 0) || (direction === 2))) return;
+            if (skipSecDiag && ((direction === 1) || (direction === 3))) return;
 
             if (pixelate) {
               drawing.box({
                 color: color,
-                from : item.point
+                from: item.point
               });
             } else {
               drawing.line({
-                from     : item.point,
+                from: item.point,
                 direction: direction,
                 makeArrow: doArrows,
-                color    : color
+                color: color
               });
             }
           }).run();
           def.fail(plotting.abort);
-          plotting.done(function(){
+          plotting.done(function () {
             drawing.grid(model.gridX, model.gridY);
             if (model.provideAnalytics) {
               drawing.analytics();
             }
             def.resolve();
-          }).fail(function(){
+          }).fail(function () {
             def.reject();
           });
         }
@@ -714,7 +720,7 @@
 
   }
 
-  function getProgressBar(){
+  function getProgressBar() {
     var barTemplate = $('#progress_bar_template').html();
 
     $('body').addClass('m_overlay');
@@ -723,16 +729,16 @@
     var lastProgress = 0;
 
     return {
-      destroy: function(){
+      destroy: function () {
         $('body').removeClass('m_overlay');
         bar.remove();
         lastProgress = 1;
       },
-      handle: function(progress){
+      handle: function (progress) {
         if ((progress - lastProgress) < 0.001) return;
         lastProgress = progress;
         var width = (Math.max(0, Math.min(progress, 1)) * 100).toFixed(2) + '%';
-        gauge.css({ width: width });
+        gauge.css({width: width});
       }
     }
   }
@@ -778,22 +784,22 @@
     context.font = "10pt sans-serif";
 
     return {
-      init          : function () {
+      init: function () {
         this.begin()
           .setFillStyle('rgba(255,255,255, 0)');
         //context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillRect(0, 0, canvas.width, canvas.height);
         return this;
       },
-      coords        : function () {
+      coords: function () {
         var point = [0, 0], v1 = [coords.x, 0], v2 = [0, coords.y], v3 = [-coords.x, 0], v4 = [0, -coords.y];
         this.begin()
           .setStrokeStyle('#444')
           .makePoly(this.toWorld(point),
-          this.toWorldDiff(v1),
-          this.toWorldDiff(v2),
-          this.toWorldDiff(v3),
-          this.toWorldDiff(v4)).stroke();
+            this.toWorldDiff(v1),
+            this.toWorldDiff(v2),
+            this.toWorldDiff(v3),
+            this.toWorldDiff(v4)).stroke();
 
 
         var pointX = [coords.x, 0], v = [1, 0], endPin = add(pointX, v),
@@ -806,7 +812,8 @@
           .makeLine(this.toWorld(add(endPin, _v1)), this.toWorldDiff(add(_v2, neg(_v1))))
           .stroke();
 
-        var pointY = [0, coords.y], v = [0, 1];
+        var pointY = [0, coords.y];
+        v = [0, 1];
         endPin = add(pointY, v);
         _v1 = rot(1, -.5, 2 / 12);
         _v2 = rot(1, -.5, -(2 / 12));
@@ -819,7 +826,7 @@
 
         return this;
       },
-      info          : function () {
+      info: function () {
         var _gcd = gcd(coords.x, coords.y), _lcm = coords.x * coords.y / _gcd;
 
         var info = "(" + (coords.x) + ", " + (coords.y) + ") = " + _gcd + ", LCM: " + _lcm;
@@ -840,7 +847,7 @@
           info += ', Seq: [' + seq.join(', ') + ']';
         }
 
-        this.begin()
+        this.begin();
         if ((_gcd > 1) && (model.fill === true)) {
           this.setStrokeStyle('#ff6655');
           context.textAlign = "left";
@@ -851,11 +858,11 @@
         context.strokeText(info, xEnd, yEnd + 20);
         return this;
       },
-      analytics     : function () {
+      analytics: function () {
         var x = coords.x, y = coords.y, partial, mod, point, v1, v2, i;
         while (true) {
           point = [x, y];
-          if ((x == y) || (x <= 1) || (y <= 1)) {
+          if ((x === y) || (x <= 1) || (y <= 1)) {
             break;
           } else if (x > y) {
             partial = Math.floor(x / y);
@@ -890,7 +897,7 @@
         }
 
       },
-      grid          : function (doX, doY) {
+      grid: function (doX, doY) {
         var x = coords.x, y = coords.y, i;
         if (doX)
           for (i = 0; i < y; i++)
@@ -899,7 +906,7 @@
           for (i = 0; i < x; i++)
             this.begin().setStrokeStyle('#ccc').makeLine(this.toWorld([i, 0]), this.toWorldDiff([0, y])).stroke();
       },
-      box           : function (o) {
+      box: function (o) {
         var boxCoords = o.from,
           style = o.color;
 
@@ -912,13 +919,13 @@
 
         return this;
       },
-      halfBox       : function (o) {
+      halfBox: function (o) {
         var boxCoords = o.from,
           direction = o.direction,
           style = o.color,
           style2 = o.colorTo;
 
-        var isMainDiag = ((direction == 0) || (direction == 2)),
+        var isMainDiag = ((direction === 0) || (direction === 2)),
           basePoint = isMainDiag ? [boxCoords.x, boxCoords.y] : add([boxCoords.x, boxCoords.y], [1, 0]),
           v1, v2, v3;
 
@@ -940,7 +947,7 @@
           .makePoly(this.toWorld(basePoint), this.toWorldDiff(v1), this.toWorldDiff(v2))
           .close().fill();
       },
-      line          : function (o) {
+      line: function (o) {
         var boxCoords = o.from,
           direction = o.direction,
           makeArrow = o.makeArrow,
@@ -951,51 +958,54 @@
 
         this.begin().setStrokeStyle(style);
 
-        if (!makeArrow) {
-          this.makeLine(this.toWorld(basePoint), this.toWorldDiff(vector));
-        } else {
+        if (makeArrow) {
           var arrCoords = [
             [-(5 / 12), -(4 / 12)], // small
             [-(7 / 12), -(5 / 12)], // normal
             [-(9 / 12), -(7.5 / 12)]  // large
           ][arrowSize % 3], arrX = arrCoords[0], arrY = arrCoords[1];
+
+          //noinspection JSSuspiciousNameCombination
           var endPin = add(basePoint, vector),
             v1 = rot(direction, arrX, arrY),
             v2 = rot(direction, arrY, arrX);
+
           this.makeLine(this.toWorld(basePoint), this.toWorldDiff(vector))
             .makeLine(this.toWorld(endPin), this.toWorldDiff(v1))
             .makeLine(this.toWorld(endPin), this.toWorldDiff(v2))
             .makeLine(this.toWorld(add(endPin, v1)), this.toWorldDiff(add(v2, neg(v1))));
+        } else {
+          this.makeLine(this.toWorld(basePoint), this.toWorldDiff(vector));
         }
+        
         this.stroke();
       },
-      begin         : wrapAfter(function () {
+      begin: wrapAfter(function () {
         context.beginPath();
       }, returnThis),
-      stroke        : wrapAfter(function () {
+      stroke: wrapAfter(function () {
         context.stroke();
       }, returnThis),
-      fill          : wrapAfter(function () {
+      fill: wrapAfter(function () {
         context.fill();
       }, returnThis),
-      close         : wrapAfter(function () {
+      close: wrapAfter(function () {
         context.closePath();
       }, returnThis),
       setStrokeStyle: wrapAfter(function (style) {
         context.strokeStyle = style;
       }, returnThis),
-      setFillStyle  : wrapAfter(function (style) {
+      setFillStyle: wrapAfter(function (style) {
         context.fillStyle = style;
-        ;
       }, returnThis),
-      makeLine      : wrapAfter(bindArgs(context, makeVect), returnThis),
-      makeBox       : wrapAfter(bindArgs(context, makeRect), returnThis),
-      makePoly      : wrapAfter(bindArgs(context, makePolygon), returnThis),
-      rotate        : feedArray(null, rot),
-      toWorld       : model.toggleOy
+      makeLine: wrapAfter(bindArgs(context, makeVect), returnThis),
+      makeBox: wrapAfter(bindArgs(context, makeRect), returnThis),
+      makePoly: wrapAfter(bindArgs(context, makePolygon), returnThis),
+      rotate: feedArray(null, rot),
+      toWorld: model.toggleOy
         ? feedArray(null, curry(null, transpose, model.ratio, -model.ratio, model.viewOffset.x, model.viewOffset.y + (model.ratio * (model.viewOffset.yBase + 1))))
         : feedArray(null, curry(null, transpose, model.ratio, model.ratio, model.viewOffset.x, model.viewOffset.y)),
-      toWorldDiff   : model.toggleOy
+      toWorldDiff: model.toggleOy
         ? feedArray(null, curry(null, transpose, model.ratio, -model.ratio, 0, 0))
         : feedArray(null, curry(null, transpose, model.ratio, model.ratio, 0, 0))
     };
@@ -1062,7 +1072,7 @@
     }
 
     function bindArgs(context, func, Tfunc) {
-      var isTFuncPresent = arguments.length == 3;
+      var isTFuncPresent = arguments.length === 3;
       if (isTFuncPresent)
         return function () {
           return func.apply(context || this, Tfunc.apply(this, arguments));
@@ -1096,22 +1106,22 @@
 
   function toHash(m) {
     var str = _.map({
-      'w'  : m.patternSize.width,
-      'h'  : m.patternSize.height,
-      'f'  : m.fill ? true : ((m.fill === false) ? false : 0),
-      'c'  : m[getDrawModeColorBankName(m.fill)],
-      'o'  : m.fill ? m.outline : null,
-      'p'  : !m.fill ? m.pixelate : null,
-      'd'  : !m.fill ? m.doArrows : null,
-      'as' : !m.fill ? m.arrowSize : null,
+      'w': m.patternSize.width,
+      'h': m.patternSize.height,
+      'f': m.fill ? true : ((m.fill === false) ? false : 0),
+      'c': m[getDrawModeColorBankName(m.fill)],
+      'o': m.fill ? m.outline : null,
+      'p': !m.fill ? m.pixelate : null,
+      'd': !m.fill ? m.doArrows : null,
+      'as': !m.fill ? m.arrowSize : null,
       'sdm': !m.fill ? m.skipMainDiag : null,
       'sds': !m.fill ? m.skipSecDiag : null,
-      'r'  : m.ratio,
-      'i'  : m.provideInfo,
-      'a'  : m.provideAnalytics,
-      'y'  : m.toggleOy,
-      'gx' : m.gridX ? m.gridX : null,
-      'gy' : m.gridY ? m.gridY : null
+      'r': m.ratio,
+      'i': m.provideInfo,
+      'a': m.provideAnalytics,
+      'y': m.toggleOy,
+      'gx': m.gridX ? m.gridX : null,
+      'gy': m.gridY ? m.gridY : null
     }, function (v, k) {
       if (v === null) return '';
       return [k, fromValue(v)].join('=');
@@ -1130,29 +1140,29 @@
     if (!/^#!/.test(str))
       return {};
     var map = {
-      'w'  : 'patternSize.width',
-      'h'  : 'patternSize.height',
-      'f'  : 'fill',
-      'c'  : '_colorBank',
+      'w': 'patternSize.width',
+      'h': 'patternSize.height',
+      'f': 'fill',
+      'c': '_colorBank',
       'sdm': '_skipMainDiag',
       'sds': '_skipSecDiag',
-      'p'  : '_pixelate',
-      'd'  : '_doArrows',
-      'as' : '_arrowSize',
-      'o'  : '_outline',
-      'r'  : 'ratio',
-      'i'  : 'provideInfo',
-      'a'  : 'provideAnalytics',
-      'y'  : 'toggleOy',
-      'gx' : 'gridX',
-      'gy' : 'gridY'
+      'p': '_pixelate',
+      'd': '_doArrows',
+      'as': '_arrowSize',
+      'o': '_outline',
+      'r': 'ratio',
+      'i': 'provideInfo',
+      'a': 'provideAnalytics',
+      'y': 'toggleOy',
+      'gx': 'gridX',
+      'gy': 'gridY'
     };
     var input = str.replace(/^#!/, '').split(/&/);
     var obj = _.reduce(input, function (memo, v) {
       if (!v)
         return memo;
       var pair = v.split('=');
-      if (pair.length == 2) {
+      if (pair.length === 2) {
         var value = ((/^\d+$/.test(pair[1])) ? pair[1] >>> 0 : pair[1]), trueKey = map[pair[0]];
         if (trueKey) {
           ensureObjValue(memo, trueKey.split(/\./), value);
@@ -1161,8 +1171,8 @@
       return memo;
     }, {});
 
-    if ((typeof obj['fill'] != 'undefined')) {
-      if ((typeof obj['_colorBank'] != 'undefined')) {
+    if ((typeof obj['fill'] !== 'undefined')) {
+      if ((typeof obj['_colorBank'] !== 'undefined')) {
         if (obj.fill === true) {
           obj.fillColorBank = obj['_colorBank'];
         } else if (obj.fill === false) {
@@ -1173,42 +1183,42 @@
         delete obj['_colorBank'];
       }
 
-      if ((typeof obj['_outline'] != 'undefined')) {
+      if ((typeof obj['_outline'] !== 'undefined')) {
         if (obj.fill) {
           obj.outline = obj['_outline'];
         }
         delete obj['_outline'];
       }
 
-      if ((typeof obj['_skipMainDiag'] != 'undefined')) {
+      if ((typeof obj['_skipMainDiag'] !== 'undefined')) {
         if (!obj.fill) {
           obj.skipMainDiag = obj['_skipMainDiag'];
         }
         delete obj['_skipMainDiag'];
       }
 
-      if ((typeof obj['_skipSecDiag'] != 'undefined')) {
+      if ((typeof obj['_skipSecDiag'] !== 'undefined')) {
         if (!obj.fill) {
           obj.skipSecDiag = obj['_skipSecDiag'];
         }
         delete obj['_skipSecDiag'];
       }
 
-      if ((typeof obj['_pixelate'] != 'undefined')) {
+      if ((typeof obj['_pixelate'] !== 'undefined')) {
         if (!obj.fill) {
           obj.pixelate = obj['_pixelate'];
         }
         delete obj['_pixelate'];
       }
 
-      if ((typeof obj['_doArrows'] != 'undefined')) {
+      if ((typeof obj['_doArrows'] !== 'undefined')) {
         if (!obj.fill) {
           obj.doArrows = obj['_doArrows'];
         }
         delete obj['_doArrows'];
       }
 
-      if ((typeof obj['_arrowSize'] != 'undefined')) {
+      if ((typeof obj['_arrowSize'] !== 'undefined')) {
         if (!obj.fill) {
           obj.arrowSize = obj['_arrowSize'];
         }
@@ -1247,7 +1257,7 @@
     var ratio = model.ratio, offset = model.viewOffset;
 
     var obj = canvas, top = 0, left = 0;
-    while (obj && obj.tagName != 'BODY') {
+    while (obj && obj.tagName !== 'BODY') {
       top += obj.offsetTop;
       left += obj.offsetLeft;
       obj = obj.offsetParent;
